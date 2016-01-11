@@ -2,8 +2,9 @@
 Allows to controll master sound volume on your PC (linux or windows) from your android phone
 
 # Add python script to startup (Ubuntu 14.04):
-1. Go to /etc/init folder
-2. create volume-controller.conf file with this content:
+1\. Go to /etc/init folder
+
+2\. create volume-controller.conf file with this content:
 
 > start on runlevel [2345]
 
