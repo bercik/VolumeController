@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -38,8 +39,8 @@ public class MainActivity extends ActionBarActivity
 
     private BroadcastReceiver wifiReceiver;
 
-    private final String HOST = "192.168.1.10";
-    private final int PORT = 5656;
+    public static final String HOST = "192.168.1.10";
+    public static final int PORT = 5656;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -52,8 +53,10 @@ public class MainActivity extends ActionBarActivity
 
         initializeVariables();
 
-        client = new Client(HOST, PORT);
-        errorTextView.setTextColor(Color.RED);
+        SharedPreferences settings = getSharedPreferences("Preferences", 0);
+        String host = settings.getString("ipaddress", MainActivity.HOST);
+
+        client = new Client(host, PORT);
         errorTextView.setText("");
 
         // add events
@@ -272,6 +275,9 @@ public class MainActivity extends ActionBarActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings)
         {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+
             return true;
         }
 

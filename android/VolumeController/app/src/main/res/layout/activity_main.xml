@@ -101,6 +101,7 @@
         android:id="@+id/errorTextView"
         android:text="ERROR HERE"
         android:layout_below="@+id/getButton"
-        android:layout_alignStart="@+id/getButton"/>
+        android:layout_alignStart="@+id/getButton"
+        android:textColor="#ffff0000"/>
 
 </RelativeLayout>
