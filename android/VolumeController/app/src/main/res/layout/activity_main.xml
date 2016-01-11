@@ -1,0 +1,108 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context=".MainActivity">
+
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/soundVolumeBar"
+        android:layout_below="@+id/soundVolumeTextView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:max="100"
+        android:clickable="true"
+        android:progress="1"
+        android:indeterminate="false"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Sound volume:"
+        android:id="@+id/soundVolumeTextView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+5%"
+        android:id="@+id/plus5Button"
+        android:layout_below="@+id/soundVolumeBar"
+        android:layout_alignEnd="@+id/soundVolumeBar"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+1%"
+        android:id="@+id/plus1Button"
+        android:layout_alignTop="@+id/plus5Button"
+        android:layout_toStartOf="@+id/plus5Button"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-5%"
+        android:id="@+id/minus5Button"
+        android:layout_below="@+id/soundVolumeBar"
+        android:layout_alignParentStart="true"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-1%"
+        android:id="@+id/minus1Button"
+        android:layout_alignTop="@+id/minus5Button"
+        android:layout_toEndOf="@+id/minus5Button"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="set"
+        android:id="@+id/setButton"
+        android:layout_alignTop="@+id/getButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/plus1Button"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="get"
+        android:id="@+id/getButton"
+        android:layout_marginTop="94dp"
+        android:layout_below="@+id/minus5Button"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/minus1Button"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="mute"
+        android:id="@+id/muteCheckBox"
+        android:layout_marginTop="27dp"
+        android:layout_below="@+id/minus5Button"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/errorTextView"
+        android:layout_below="@+id/getButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="52dp"
+        android:layout_alignParentEnd="true"
+        android:text="ERROR HERE"/>
+
+</RelativeLayout>

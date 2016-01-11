@@ -34,25 +34,30 @@ class Server:
     def accept(self):
         self.socket.listen(5)
         (clientSocket, addr) = self.socket.accept()
-        recived = clientSocket.recv(1024)
-        recived = recived.decode(encoding='UTF-8')
+        try:
+            recived = clientSocket.recv(1024)
+            recived = recived.decode(encoding='UTF-8')
 
-        if recived.startswith(self.GET_VOLUME):
-            vol = self.vc.getVolume() 
-            clientSocket.send(str(vol).encode(encoding='UTF-8'))
-        elif recived.startswith(self.SET_VOLUME):
-            vol = int(recived.split(' ')[1])
-            self.vc.setVolume(vol)
+            if recived.startswith(self.GET_VOLUME):
+                vol = str(self.vc.getVolume()) + '\n'
+                clientSocket.send(vol.encode(encoding='UTF-8'))
+            elif recived.startswith(self.SET_VOLUME):
+                vol = int(recived.split(' ')[1])
+                self.vc.setVolume(vol)
+        except Exception as ex:
+            print(ex)
 
     def close(self):
         self.socket.close()
 
 if __name__ == '__main__':
-    while True:
-        try:
-            server = Server(5656)
+    server = None
 
-            while True:
-                server.accept()
-        except Exception as ex:
+    while True:
+        server = Server(5656)
+
+        while True:
+            server.accept()
+
+        if server != None:
             server.close()
