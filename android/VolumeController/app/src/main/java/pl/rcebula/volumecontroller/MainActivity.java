@@ -1,6 +1,12 @@
 package pl.rcebula.volumecontroller;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -29,6 +35,8 @@ public class MainActivity extends ActionBarActivity
     private TextView errorTextView;
 
     private Client client;
+
+    private BroadcastReceiver wifiReceiver;
 
     private final String HOST = "192.168.1.10";
     private final int PORT = 5656;
@@ -144,12 +152,42 @@ public class MainActivity extends ActionBarActivity
 
         getVolume();
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+
+        wifiReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                ConnectivityManager conMan =
+                        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+                if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI)
+                {
+                    getVolume();
+                }
+                else
+                {
+                    errorTextView.setText("You need wifi connection");
+                }
+            }
+        };
+
+        registerReceiver(wifiReceiver, filter);
     }
 
     private void getVolume()
     {
         try
         {
+            errorTextView.setText("");
+
+            if (!isWifiConnected())
+            {
+                return;
+            }
+
             int vol = client.getVolume();
 
             svSeekBar.setProgress(vol);
@@ -169,12 +207,35 @@ public class MainActivity extends ActionBarActivity
     {
         try
         {
+            errorTextView.setText("");
+
+            if (!isWifiConnected())
+            {
+                return;
+            }
+
             client.setVolume(vol);
         }
         catch (IOException ex)
         {
             errorTextView.setText(ex.getMessage());
         }
+    }
+
+    private boolean isWifiConnected()
+    {
+        ConnectivityManager connManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (!mWifi.isConnected())
+        {
+            errorTextView.setText("You need wifi connection");
+
+            return false;
+        }
+
+        return true;
     }
 
     private void initializeVariables()
@@ -215,5 +276,12 @@ public class MainActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        unregisterReceiver(wifiReceiver);
     }
 }
