@@ -13,7 +13,7 @@ Allows to controll master sound volume on your PC (linux or windows) from your a
 
 > exec ./run.sh
 
-3. That's it. You can start and stop script manually by calling:
+3\. That's it. You can start and stop script manually by calling:
 
 > sudo service volume-controller start
 
