@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
@@ -26,7 +25,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 
-public class MainActivity extends ActionBarActivity
+public class VolumeControllerActivity extends ActionBarActivity
 {
     private SeekBar svSeekBar;
     private TextView svTextView;
@@ -50,7 +49,7 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_volume_controller);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -58,7 +57,7 @@ public class MainActivity extends ActionBarActivity
         initializeVariables();
 
         SharedPreferences settings = getSharedPreferences("Preferences", 0);
-        String host = settings.getString("ipaddress", MainActivity.HOST);
+        String host = settings.getString("ipaddress", VolumeControllerActivity.HOST);
 
         client = new Client(host, PORT);
         errorTextView.setText("");
@@ -196,7 +195,7 @@ public class MainActivity extends ActionBarActivity
                         .setProgress(100, svSeekBar.getProgress(), false)
                         .setAutoCancel(false);
         // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, MainActivity.class);
+        Intent resultIntent = new Intent(this, VolumeControllerActivity.class);
 
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
@@ -204,7 +203,7 @@ public class MainActivity extends ActionBarActivity
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addParentStack(VolumeControllerActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =

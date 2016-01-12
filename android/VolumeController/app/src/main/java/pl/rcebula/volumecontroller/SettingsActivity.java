@@ -42,7 +42,7 @@ public class SettingsActivity extends ActionBarActivity
         errorTextView.setText("");
 
         SharedPreferences settings = getSharedPreferences("Preferences", 0);
-        ipAddressEditText.setText(settings.getString("ipaddress", MainActivity.HOST));
+        ipAddressEditText.setText(settings.getString("ipaddress", VolumeControllerActivity.HOST));
 
         saveButton.setOnClickListener(new View.OnClickListener()
         {
