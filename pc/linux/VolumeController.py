@@ -72,7 +72,11 @@ class Server:
             recived = recived[:-1] # remove \n character from end
 
             if recived.startswith(self.GET_VOLUME):
-                vol = str(self.vc.getVolume()) + '\n'
+                vol = "-1\n"
+                try:
+                    vol = str(self.vc.getVolume()) + '\n'
+                except Exception as ex:
+                    logging.error(ex)
                 clientSocket.send(vol.encode(encoding='UTF-8'))
             elif recived.startswith(self.SET_VOLUME):
                 vol = int(recived.split(' ')[1])

@@ -242,7 +242,14 @@ public class VolumeControllerFragment extends Fragment
 
             int vol = client.getVolume();
 
-            svSeekBar.setProgress(vol);
+            if (vol != -1)
+            {
+                svSeekBar.setProgress(vol);
+            }
+            else
+            {
+                errorTextView.setText("Can't get sound volume from server");
+            }
         }
         catch (IOException ex)
         {

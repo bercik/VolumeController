@@ -1,5 +1,6 @@
 package pl.rcebula.volumecontroller;
 
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Intent;
@@ -59,7 +60,6 @@ public class MainActivity extends ActionBarActivity
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
     }
 
 
