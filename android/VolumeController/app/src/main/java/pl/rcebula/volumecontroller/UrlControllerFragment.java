@@ -15,9 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -26,29 +23,26 @@ import java.io.IOException;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link VolumeControllerFragment.OnFragmentInteractionListener} interface
+ * {@link UrlControllerFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link VolumeControllerFragment#newInstance} factory method to
+ * Use the {@link UrlControllerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class VolumeControllerFragment extends Fragment
+public class UrlControllerFragment extends Fragment
 {
-    private SeekBar svSeekBar;
-    private TextView svTextView;
-    private Button minus5Button;
-    private Button minus1Button;
-    private Button plus1Button;
-    private Button plus5Button;
-    private Button setButton;
-    private Button getButton;
-    private CheckBox muteCheckBox;
-    private TextView errorTextView;
 
     private Client client;
 
     private BroadcastReceiver wifiReceiver = null;
 
-    public static final String TITLE = "Volume Controller";
+    public static final String TITLE = "URL Controller";
+
+    private Button openButton;
+    private Button closeButton;
+    private TextView errorTextView;
+    private TextView urlTextView;
+
+    private String url;
 
     private OnFragmentInteractionListener mListener;
 
@@ -58,27 +52,13 @@ public class VolumeControllerFragment extends Fragment
      *
      */
     // TODO: Rename and change types and number of parameters
-    public static VolumeControllerFragment newInstance()
+    public static UrlControllerFragment newInstance()
     {
-        VolumeControllerFragment fragment = new VolumeControllerFragment();
+        UrlControllerFragment fragment = new UrlControllerFragment();
         return fragment;
     }
 
-    private void initializeVariables(View v)
-    {
-        svSeekBar = (SeekBar) v.findViewById(R.id.soundVolumeBar);
-        svTextView = (TextView) v.findViewById(R.id.soundVolumeTextView);
-        plus5Button = (Button) v.findViewById(R.id.plus5Button);
-        plus1Button = (Button) v.findViewById(R.id.plus1Button);
-        minus1Button = (Button) v.findViewById(R.id.minus1Button);
-        minus5Button = (Button) v.findViewById(R.id.minus5Button);
-        setButton = (Button) v.findViewById(R.id.setButton);
-        getButton = (Button) v.findViewById(R.id.getButton);
-        muteCheckBox = (CheckBox) v.findViewById(R.id.muteCheckBox);
-        errorTextView = (TextView) v.findViewById(R.id.errorTextView);
-    }
-
-    public VolumeControllerFragment()
+    public UrlControllerFragment()
     {
         // Required empty public constructor
     }
@@ -87,119 +67,42 @@ public class VolumeControllerFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_volume_controller, container, false);
-
-        initializeVariables(view);
+        View view = inflater.inflate(R.layout.fragment_url_controller, container, false);
 
         SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
         String host = settings.getString("ipaddress", MainActivity.HOST);
+        url = settings.getString("url", MainActivity.URL);
 
         client = new Client(host, MainActivity.PORT);
+
+        initializeVariables(view);
+
+        urlTextView.setText("URL: " + url);
         errorTextView.setText("");
 
-        // add events
-        svSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                svTextView.setText("Sound volume: " + Integer.toString(progress) + "%");
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-
-            }
-        });
-
-        plus5Button.setOnClickListener(new View.OnClickListener()
+        openButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() + 5);
+                openURL();
             }
         });
 
-        plus1Button.setOnClickListener(new View.OnClickListener()
+        closeButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() + 1);
+                closeURL();
             }
         });
-
-        minus1Button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                svSeekBar.setProgress(svSeekBar.getProgress() - 1);
-            }
-        });
-
-        minus5Button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                svSeekBar.setProgress(svSeekBar.getProgress() - 5);
-            }
-        });
-
-        getButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                getVolume();
-            }
-        });
-
-        setButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                setVolume();
-            }
-        });
-
-        muteCheckBox.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                boolean mute = muteCheckBox.isChecked();
-
-                if (mute)
-                {
-                    setVolume(0);
-                }
-                else
-                {
-                    setVolume();
-                }
-            }
-        });
-
-        getVolume();
 
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
@@ -214,7 +117,6 @@ public class VolumeControllerFragment extends Fragment
                 NetworkInfo netInfo = conMan.getActiveNetworkInfo();
                 if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI)
                 {
-                    getVolume();
                 }
                 else
                 {
@@ -229,20 +131,20 @@ public class VolumeControllerFragment extends Fragment
         return view;
     }
 
-    private void getVolume()
+    private void initializeVariables(View v)
+    {
+        errorTextView = (TextView) v.findViewById(R.id.errorTextView);
+        urlTextView = (TextView) v.findViewById(R.id.urlTextView);
+        openButton = (Button) v.findViewById(R.id.openButton);
+        closeButton = (Button) v.findViewById(R.id.closeButton);
+    }
+
+    private void openURL()
     {
         try
         {
             errorTextView.setText("");
-
-            if (!isWifiConnected())
-            {
-                return;
-            }
-
-            int vol = client.getVolume();
-
-            svSeekBar.setProgress(vol);
+            client.openURL(url);
         }
         catch (IOException ex)
         {
@@ -250,44 +152,17 @@ public class VolumeControllerFragment extends Fragment
         }
     }
 
-    private void setVolume()
-    {
-        setVolume(svSeekBar.getProgress());
-    }
-
-    private void setVolume(int vol)
+    private void closeURL()
     {
         try
         {
             errorTextView.setText("");
-
-            if (!isWifiConnected())
-            {
-                return;
-            }
-
-            client.setVolume(vol);
+            client.closeURL();
         }
         catch (IOException ex)
         {
             errorTextView.setText(ex.getMessage());
         }
-    }
-
-    private boolean isWifiConnected()
-    {
-        ConnectivityManager connManager =
-                (ConnectivityManager) super.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        if (!mWifi.isConnected())
-        {
-            errorTextView.setText("You need wifi connection");
-
-            return false;
-        }
-
-        return true;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

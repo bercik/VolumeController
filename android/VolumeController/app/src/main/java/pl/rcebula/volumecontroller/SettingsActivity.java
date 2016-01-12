@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,6 +23,8 @@ public class SettingsActivity extends ActionBarActivity
     private Button cancelButton;
     private EditText ipAddressEditText;
     private TextView errorTextView;
+    private EditText urlEditText;
+    private Button setToDefaultButton;
 
     private void initializeVariables()
     {
@@ -29,6 +32,8 @@ public class SettingsActivity extends ActionBarActivity
         cancelButton = (Button) findViewById(R.id.cancelButton);
         ipAddressEditText = (EditText) findViewById(R.id.ipAddressEditText);
         errorTextView = (TextView) findViewById(R.id.errorTextView);
+        urlEditText = (EditText) findViewById(R.id.urlEditText);
+        setToDefaultButton = (Button) findViewById(R.id.setToDefaultButton);
     }
 
     @Override
@@ -41,8 +46,7 @@ public class SettingsActivity extends ActionBarActivity
 
         errorTextView.setText("");
 
-        SharedPreferences settings = getSharedPreferences("Preferences", 0);
-        ipAddressEditText.setText(settings.getString("ipaddress", VolumeControllerActivity.HOST));
+        update();
 
         saveButton.setOnClickListener(new View.OnClickListener()
         {
@@ -59,9 +63,18 @@ public class SettingsActivity extends ActionBarActivity
                     return;
                 }
 
+                String url = urlEditText.getText().toString();
+                if (!URLUtil.isValidUrl(url))
+                {
+                    errorTextView.setText("Invalid URL");
+
+                    return;
+                }
+
                 SharedPreferences settings = getSharedPreferences("Preferences", 0);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString("ipaddress", ipAddress);
+                editor.putString("url", url);
                 editor.commit();
 
                 finish();
@@ -76,6 +89,23 @@ public class SettingsActivity extends ActionBarActivity
                 finish();
             }
         });
+
+        setToDefaultButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                ipAddressEditText.setText(MainActivity.HOST);
+                urlEditText.setText(MainActivity.URL);
+            }
+        });
+    }
+
+    private void update()
+    {
+        SharedPreferences settings = getSharedPreferences("Preferences", 0);
+        ipAddressEditText.setText(settings.getString("ipaddress", MainActivity.HOST));
+        urlEditText.setText(settings.getString("url", MainActivity.URL));
     }
 
     private boolean checkIPv4(final String ip)

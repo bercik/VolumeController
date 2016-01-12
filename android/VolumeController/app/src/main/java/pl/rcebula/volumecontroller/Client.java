@@ -15,6 +15,8 @@ import java.net.UnknownHostException;
  */
 public class Client
 {
+    private final String OPEN_URL = "OPEN_URL";
+    private final String CLOSE_URL = "CLOSE_URL";
     private final String SET_VOLUME = "SET_VOL";
     private final String GET_VOLUME = "GET_VOL";
 
@@ -59,6 +61,32 @@ public class Client
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
         String toWrite = SET_VOLUME + " " + Integer.toString(volume) + "\n";
+
+        out.writeBytes(toWrite);
+
+        socket.close();
+    }
+
+    public void openURL(String url) throws IOException
+    {
+        Socket socket = connectToServer();
+
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+        String toWrite = OPEN_URL + " " + url + "\n";
+
+        out.writeBytes(toWrite);
+
+        socket.close();
+    }
+
+    public void closeURL() throws IOException
+    {
+        Socket socket = connectToServer();
+
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+        String toWrite = CLOSE_URL + "\n";
 
         out.writeBytes(toWrite);
 

@@ -42,9 +42,6 @@ public class VolumeControllerActivity extends ActionBarActivity
 
     private BroadcastReceiver wifiReceiver;
 
-    public static final String HOST = "192.168.1.10";
-    public static final int PORT = 5656;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -57,9 +54,9 @@ public class VolumeControllerActivity extends ActionBarActivity
         initializeVariables();
 
         SharedPreferences settings = getSharedPreferences("Preferences", 0);
-        String host = settings.getString("ipaddress", VolumeControllerActivity.HOST);
+        String host = settings.getString("ipaddress", MainActivity.HOST);
 
-        client = new Client(host, PORT);
+        client = new Client(host, MainActivity.PORT);
         errorTextView.setText("");
 
         // add events

@@ -4,6 +4,9 @@ import socket
 import datetime
 import sys
 import logging
+import os
+
+CHROME_USER_DIR = "/home/chrome-user"
 
 class VolumeController:
     def setVolume(self, newVolume):
@@ -26,16 +29,22 @@ class BrowserController:
         self.proc = None
 
     def openURL(self, url):
+        # delete Lock if exists
+        lockFile = CHROME_USER_DIR + '/SingletonLock'
+        try:
+            os.remove(lockFile)
+        except Exception as ex:
+            pass
+
         if self.proc != None:
             self.closeURL()
 
-        logging.debug('open url: ' + url)
-        self.proc = subprocess.Popen(['google-chrome',  '--user-data-dir=/home/chrome-user', url])
+        self.proc = subprocess.Popen(['google-chrome',  
+            '--user-data-dir=' + CHROME_USER_DIR, url])
         # self.proc = subprocess.Popen(['firefox',  '-new-window', url])
 
     def closeURL(self):
         if self.proc != None:
-            logging.debug('close url: ')
             self.proc.terminate()
             self.proc = None
 
@@ -59,6 +68,7 @@ class Server:
         try:
             recived = clientSocket.recv(1024)
             recived = recived.decode(encoding='UTF-8')
+            logging.info('recived: ' + recived)
             recived = recived[:-1] # remove \n character from end
 
             if recived.startswith(self.GET_VOLUME):
@@ -83,6 +93,7 @@ if __name__ == '__main__':
 
     LOG_FILENAME = '/home/robert/volume-controller.log'
     FORMAT = '%(asctime)-15s %(levelname)s: %(message)s'
+    FORMAT = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s','%m-%d %H:%M:%S'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
     logging.debug('--DEBUG--')

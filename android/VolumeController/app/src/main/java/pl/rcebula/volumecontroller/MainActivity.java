@@ -4,25 +4,23 @@ import java.util.Locale;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity
-        implements VolumeControllerFragment.OnFragmentInteractionListener
+        implements VolumeControllerFragment.OnFragmentInteractionListener,
+                   UrlControllerFragment.OnFragmentInteractionListener
 {
 
     /**
@@ -40,12 +38,19 @@ public class MainActivity extends ActionBarActivity
      */
     ViewPager mViewPager;
 
+    public static final String HOST = "192.168.1.10";
+    public static final int PORT = 5656;
+    public static final String URL =
+            "http://www.polskastacja.pl/webplayer/index.php?channel=43&version=20150602";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -108,6 +113,8 @@ public class MainActivity extends ActionBarActivity
             {
                 case 0:
                     return VolumeControllerFragment.newInstance();
+                case 1:
+                    return UrlControllerFragment.newInstance();
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
             }
@@ -179,4 +186,6 @@ public class MainActivity extends ActionBarActivity
     {
 
     }
+
+
 }

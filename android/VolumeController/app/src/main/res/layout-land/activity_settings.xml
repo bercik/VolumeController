@@ -59,8 +59,7 @@
         android:text="Changes will have got impact on next application start"
         android:id="@+id/textView2"
         android:layout_above="@+id/saveButton"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="57dp"/>
+        android:layout_alignParentStart="true"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -86,6 +85,6 @@
         android:layout_height="wrap_content"
         android:text="Set to default"
         android:id="@+id/setToDefaultButton"
-        android:layout_above="@+id/cancelButton"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 </RelativeLayout>
