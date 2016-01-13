@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -177,7 +176,7 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                setVolume();
+                setVolume(true);
             }
         });
 
@@ -190,11 +189,11 @@ public class VolumeControllerFragment extends Fragment
 
                 if (mute)
                 {
-                    setVolume(0);
+                    setVolume(0, false);
                 }
                 else
                 {
-                    setVolume();
+                    setVolume(true);
                 }
             }
         });
@@ -257,12 +256,12 @@ public class VolumeControllerFragment extends Fragment
         }
     }
 
-    private void setVolume()
+    private void setVolume(boolean getVolAfter)
     {
-        setVolume(svSeekBar.getProgress());
+        setVolume(svSeekBar.getProgress(), getVolAfter);
     }
 
-    private void setVolume(int vol)
+    private void setVolume(int vol, boolean getVolAfter)
     {
         try
         {
@@ -274,6 +273,10 @@ public class VolumeControllerFragment extends Fragment
             }
 
             client.setVolume(vol);
+            if (getVolAfter)
+            {
+                getVolume();
+            }
         }
         catch (IOException ex)
         {

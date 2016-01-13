@@ -21,7 +21,8 @@ import android.view.ViewGroup;
 
 public class MainActivity extends ActionBarActivity
         implements VolumeControllerFragment.OnFragmentInteractionListener,
-                   UrlControllerFragment.OnFragmentInteractionListener
+                   UrlControllerFragment.OnFragmentInteractionListener,
+                   PolskastacjaControllerFragment.OnFragmentInteractionListener
 {
 
     /**
@@ -115,6 +116,8 @@ public class MainActivity extends ActionBarActivity
                     return VolumeControllerFragment.newInstance();
                 case 1:
                     return UrlControllerFragment.newInstance();
+                case 2:
+                    return PolskastacjaControllerFragment.newInstance();
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
             }

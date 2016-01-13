@@ -5,11 +5,17 @@ import datetime
 import sys
 import logging
 import os
+import math
 
 CHROME_USER_DIR = "/home/chrome-user"
 
 class VolumeController:
+
+    def __init__(self):
+        self.generateList()
+
     def setVolume(self, newVolume):
+        newVolume = self.compToAmixerList[newVolume]
         p = subprocess.Popen(['amixer', '--quiet', 'set', 'Master', str(newVolume) + "%"], 
                                 stderr=subprocess.PIPE)
 
@@ -22,7 +28,26 @@ class VolumeController:
 
         out, err = p.communicate()
 
-        return int(out[:-2])
+        vol = int(out[:-2])
+        vol = int(self.amixerToComputer(vol) + 0.5)
+
+        return vol
+
+    def generateList(self):
+        self.compToAmixerList = []
+
+        for i in range(0,101,1):
+            self.compToAmixerList.append( \
+                    int(self.computerToAmixer(i) + 0.5))
+
+    def computerToAmixer(self, x):
+        if x > 10.0:
+            return 41.2412 * math.log(0.112528 * x)
+        else:
+            return 9.0
+    
+    def amixerToComputer(self, x):
+        return 8.96 * math.exp(0.0241735 * x)
 
 class BrowserController:
     def __init__(self):
@@ -77,6 +102,7 @@ class Server:
                     vol = str(self.vc.getVolume()) + '\n'
                 except Exception as ex:
                     logging.error(ex)
+                logging.info('response: ' + vol)
                 clientSocket.send(vol.encode(encoding='UTF-8'))
             elif recived.startswith(self.SET_VOLUME):
                 vol = int(recived.split(' ')[1])
@@ -96,12 +122,10 @@ class Server:
 if __name__ == '__main__':
 
     LOG_FILENAME = '/home/robert/volume-controller.log'
-    FORMAT = '%(asctime)-15s %(levelname)s: %(message)s'
-    FORMAT = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s','%m-%d %H:%M:%S'
-    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+    FORMAT = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG, format=FORMAT)
 
-    logging.debug('--DEBUG--')
-    logging.debug(datetime.datetime.now())
+    logging.debug('--START DEBUG--')
 
     server = None
 
