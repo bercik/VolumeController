@@ -1,6 +1,8 @@
 package pl.rcebula.volumecontroller;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -38,6 +41,7 @@ public class PolskastacjaControllerFragment extends Fragment
 
     private ListView songListView;
     private TextView errorTextView;
+    private Button copyToClipboard;
 
     private final int songListUpdateInterval = 10000; // in miliseconds
     private final int playSongPosition = 1;
@@ -124,6 +128,24 @@ public class PolskastacjaControllerFragment extends Fragment
             songListAdapter.notifyDataSetChanged();
         }
 
+        copyToClipboard.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                int playedIndex = getPlayedIndex(songs);
+                if (playedIndex != -1)
+                {
+                    HandleXml.Song playedSong = songs.get(playedIndex);
+
+                    ClipboardManager clipboard =
+                            (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("song title", playedSong.getTitle());
+                    clipboard.setPrimaryClip(clip);
+                }
+            }
+        });
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -132,6 +154,7 @@ public class PolskastacjaControllerFragment extends Fragment
     {
         songListView = (ListView) v.findViewById(R.id.songListView);
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);
+        copyToClipboard = (Button) v.findViewById(R.id.copyToClipboardbutton);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -219,7 +242,20 @@ public class PolskastacjaControllerFragment extends Fragment
 
         Log.d("polskastacja", "save instance bundle");
 
-        outState.putSerializable("songs", (Serializable)songs);
+        outState.putSerializable("songs", (Serializable) songs);
+    }
+
+    private int getPlayedIndex(List<HandleXml.Song> songs)
+    {
+        for (int i = 0; i < songs.size(); ++i)
+        {
+            if (songs.get(i).isPlaying())
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private class DownloadSongList extends AsyncTask<String, Integer, List<HandleXml.Song>>
@@ -269,16 +305,7 @@ public class PolskastacjaControllerFragment extends Fragment
 
         private List<HandleXml.Song> cutBottom(List<HandleXml.Song> songs)
         {
-            int playedIndex = 0;
-
-            for (int i = 0; i < songs.size(); ++i)
-            {
-                if (songs.get(i).isPlaying())
-                {
-                    playedIndex = i;
-                    break;
-                }
-            }
+            int playedIndex = getPlayedIndex(songs);
 
             int cutDownIndex = playedIndex - playSongPosition;
 

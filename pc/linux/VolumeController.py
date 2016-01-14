@@ -75,6 +75,7 @@ class BrowserController:
 
 class ComputerController:
     def shutdown(self):
+        logging.debug("shutdown")
         p = subprocess.Popen(['./shutdown.sh'])
 
 class Server:
