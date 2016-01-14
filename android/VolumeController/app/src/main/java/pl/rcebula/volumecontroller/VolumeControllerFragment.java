@@ -205,7 +205,7 @@ public class VolumeControllerFragment extends Fragment
 
     private void getVolume()
     {
-        new ClientConnectionAsyncTask().execute("GET_VOL");
+        new ClientConnectionAsyncTask().execute(client.GET_VOLUME);
     }
 
     private void setVolume(boolean getVolAfter)
@@ -215,7 +215,7 @@ public class VolumeControllerFragment extends Fragment
 
     private void setVolume(int vol, boolean getVolAfter)
     {
-        new ClientConnectionAsyncTask().execute("SET_VOL", Integer.toString(vol),
+        new ClientConnectionAsyncTask().execute(client.SET_VOLUME, Integer.toString(vol),
                 Boolean.toString(getVolAfter));
     }
 
@@ -314,12 +314,12 @@ public class VolumeControllerFragment extends Fragment
             {
                 String action = params[0];
 
-                if (action.equals("GET_VOL"))
+                if (action.equals(client.GET_VOLUME))
                 {
                     setVol = true;
                     vol = client.getVolume();
                 }
-                else if (action.equals("SET_VOL"))
+                else if (action.equals(client.SET_VOLUME))
                 {
                     vol = Integer.parseInt(params[1]);
                     boolean getVolAfter = Boolean.parseBoolean(params[2]);

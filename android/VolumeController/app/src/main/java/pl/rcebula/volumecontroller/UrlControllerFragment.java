@@ -1,16 +1,20 @@
 package pl.rcebula.volumecontroller;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,14 +37,13 @@ public class UrlControllerFragment extends Fragment
 
     private Client client;
 
-    private BroadcastReceiver wifiReceiver = null;
-
     public static final String TITLE = "URL Controller";
 
     private Button openButton;
     private Button closeButton;
     private TextView errorTextView;
     private TextView urlTextView;
+    private Button shutdownButton;
 
     private String url;
 
@@ -49,7 +52,6 @@ public class UrlControllerFragment extends Fragment
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
      */
     // TODO: Rename and change types and number of parameters
     public static UrlControllerFragment newInstance()
@@ -104,28 +106,36 @@ public class UrlControllerFragment extends Fragment
             }
         });
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-
-        wifiReceiver = new BroadcastReceiver()
+        shutdownButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onReceive(Context context, Intent intent)
+            public void onClick(View v)
             {
-                ConnectivityManager conMan =
-                        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo netInfo = conMan.getActiveNetworkInfo();
-                if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI)
+                DialogInterface.OnClickListener dialogClickListener =
+                        new DialogInterface.OnClickListener()
                 {
-                }
-                else
-                {
-                    errorTextView.setText("You need wifi connection");
-                }
-            }
-        };
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        switch (which)
+                        {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                shutdown();
+                                break;
 
-        super.getActivity().registerReceiver(wifiReceiver, filter);
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Are you sure you want to shutdown computer?")
+                        .setNegativeButton("No", dialogClickListener)
+                        .setPositiveButton("Yes", dialogClickListener).show();
+            }
+        });
 
         // Inflate the layout for this fragment
         return view;
@@ -137,32 +147,22 @@ public class UrlControllerFragment extends Fragment
         urlTextView = (TextView) v.findViewById(R.id.urlTextView);
         openButton = (Button) v.findViewById(R.id.openButton);
         closeButton = (Button) v.findViewById(R.id.closeButton);
+        shutdownButton = (Button) v.findViewById(R.id.shutdownButton);
     }
 
     private void openURL()
     {
-        try
-        {
-            errorTextView.setText("");
-            client.openURL(url);
-        }
-        catch (IOException ex)
-        {
-            errorTextView.setText(ex.getMessage());
-        }
+        new ClientConnectionAsyncTask().execute(client.OPEN_URL, url);
     }
 
     private void closeURL()
     {
-        try
-        {
-            errorTextView.setText("");
-            client.closeURL();
-        }
-        catch (IOException ex)
-        {
-            errorTextView.setText(ex.getMessage());
-        }
+        new ClientConnectionAsyncTask().execute(client.CLOSE_URL);
+    }
+
+    private void shutdown()
+    {
+        new ClientConnectionAsyncTask().execute(client.SHUTDOWN);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -216,12 +216,6 @@ public class UrlControllerFragment extends Fragment
     public void onStop()
     {
         super.onStop();
-
-        if (wifiReceiver != null)
-        {
-            super.getActivity().unregisterReceiver(wifiReceiver);
-            wifiReceiver = null;
-        }
     }
 
     @Override
@@ -232,6 +226,73 @@ public class UrlControllerFragment extends Fragment
         if (isVisibleToUser)
         {
             super.getActivity().setTitle(TITLE);
+        }
+    }
+
+    private class ClientConnectionAsyncTask extends AsyncTask<String, Integer, Integer>
+    {
+        private Exception ex = null;
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            if (!((MainActivity) getActivity()).isWifiAvailable())
+            {
+                errorTextView.setText("You need wifi connection");
+
+                this.cancel(true);
+
+                return;
+            }
+
+            errorTextView.setText("");
+        }
+
+        @Override
+        protected Integer doInBackground(String... params)
+        {
+            try
+            {
+                String action = params[0];
+
+                if (action.equals(client.OPEN_URL))
+                {
+                    String url = params[1];
+
+                    client.openURL(url);
+                }
+                else if (action.equals(client.CLOSE_URL))
+                {
+                    client.closeURL();
+                }
+                else if (action.equals(client.SHUTDOWN))
+                {
+                    client.shutdown();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.ex = ex;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer)
+        {
+            super.onPostExecute(integer);
+
+            if (ex != null)
+            {
+                errorTextView.setText(ex.getMessage());
+
+                return;
+            }
+
+            errorTextView.setText("");
         }
     }
 }

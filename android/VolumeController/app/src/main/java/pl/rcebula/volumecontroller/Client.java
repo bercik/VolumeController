@@ -15,10 +15,11 @@ import java.net.UnknownHostException;
  */
 public class Client
 {
-    private final String OPEN_URL = "OPEN_URL";
-    private final String CLOSE_URL = "CLOSE_URL";
-    private final String SET_VOLUME = "SET_VOL";
-    private final String GET_VOLUME = "GET_VOL";
+    public final String OPEN_URL = "OPEN_URL";
+    public final String CLOSE_URL = "CLOSE_URL";
+    public final String SET_VOLUME = "SET_VOL";
+    public final String GET_VOLUME = "GET_VOL";
+    public final String SHUTDOWN = "SHUTDOWN";
 
     private final String host;
     private final int port;
@@ -56,37 +57,29 @@ public class Client
 
     public void setVolume(int volume) throws IOException
     {
-        Socket socket = connectToServer();
-
-        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
-        String toWrite = SET_VOLUME + " " + Integer.toString(volume) + "\n";
-
-        out.writeBytes(toWrite);
-
-        socket.close();
+        writeToServer(SET_VOLUME + " " + Integer.toString(volume) + "\n");
     }
 
     public void openURL(String url) throws IOException
     {
-        Socket socket = connectToServer();
-
-        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
-        String toWrite = OPEN_URL + " " + url + "\n";
-
-        out.writeBytes(toWrite);
-
-        socket.close();
+        writeToServer(OPEN_URL + " " + url + "\n");
     }
 
     public void closeURL() throws IOException
     {
+        writeToServer(CLOSE_URL + "\n");
+    }
+
+    public void shutdown() throws IOException
+    {
+        writeToServer(SHUTDOWN + "\n");
+    }
+
+    private void writeToServer(String toWrite) throws IOException
+    {
         Socket socket = connectToServer();
 
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
-        String toWrite = CLOSE_URL + "\n";
 
         out.writeBytes(toWrite);
 

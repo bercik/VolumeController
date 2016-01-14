@@ -73,16 +73,22 @@ class BrowserController:
             self.proc.terminate()
             self.proc = None
 
+class ComputerController:
+    def shutdown(self):
+        p = subprocess.Popen(['./shutdown.sh'])
+
 class Server:
     SET_VOLUME = "SET_VOL"
     GET_VOLUME = "GET_VOL"
     OPEN_URL = "OPEN_URL"
     CLOSE_URL = "CLOSE_URL"
+    SHUTDOWN = "SHUTDOWN"
 
     def __init__(self, port):
         self.port = port
         self.vc = VolumeController()
         self.bc = BrowserController()
+        self.cc = ComputerController()
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('', self.port))
@@ -112,6 +118,9 @@ class Server:
                 self.bc.openURL(url)
             elif recived.startswith(self.CLOSE_URL):
                 self.bc.closeURL()
+            elif recived.startswith(self.SHUTDOWN):
+                self.close()
+                self.cc.shutdown()
 
         except Exception as ex:
             logging.error(ex)
