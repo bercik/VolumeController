@@ -4,28 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -45,13 +38,12 @@ public class PolskastacjaControllerFragment extends Fragment
     private ListView songListView;
     private TextView errorTextView;
 
-    private final int songListUpdateInterval = 5000; // in miliseconds
+    private final int songListUpdateInterval = 10000; // in miliseconds
     private final int playSongPosition = 1;
-    private final int downSongsRange = 4;
 
     private Handler songListDownloaderHandler;
-    private ArrayAdapter<String> songListAdapter = null;
-    private List<String> songs;
+    private ArrayAdapter<HandleXml.Song> songListAdapter = null;
+    private List<HandleXml.Song> songs = new ArrayList<>();
 
     private class MyRunnable implements Runnable
     {
@@ -63,6 +55,8 @@ public class PolskastacjaControllerFragment extends Fragment
             if (songListDownloader.getStatus() == AsyncTask.Status.FINISHED
                     || songListDownloader.getStatus() == AsyncTask.Status.PENDING)
             {
+                Log.d("polskastacja", "download song list");
+
                 songListDownloader = new DownloadSongList();
 
                 songListDownloader.execute("http://www.polskastacja.pl/webplayer/" +
@@ -111,6 +105,8 @@ public class PolskastacjaControllerFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
+        Log.d("polskastacja", "create view");
+
         View view = inflater.inflate(R.layout.fragment_polskastacja_controller, container, false);
 
         initializeVariables(view);
@@ -191,10 +187,12 @@ public class PolskastacjaControllerFragment extends Fragment
     {
         super.onStop();
 
+        Log.d("polskastacja", "stop");
+
         songListDownloaderRunner.cancel();
     }
 
-    private class DownloadSongList extends AsyncTask<String, Integer, List<String>>
+    private class DownloadSongList extends AsyncTask<String, Integer, List<HandleXml.Song>>
     {
         private Exception ex = null;
 
@@ -207,9 +205,9 @@ public class PolskastacjaControllerFragment extends Fragment
         }
 
         @Override
-        protected List<String> doInBackground(String... params)
+        protected List<HandleXml.Song> doInBackground(String... params)
         {
-            List<String> tmpSongs = null;
+            List<HandleXml.Song> tmpSongs = null;
 
             try
             {
@@ -219,9 +217,9 @@ public class PolskastacjaControllerFragment extends Fragment
 
                 handleXml.fetchXML();
 
-                tmpSongs = handleXml.getSongTitles();
+                tmpSongs = handleXml.getSongs();
 
-                tmpSongs = tmpSongs.subList(downSongsRange, tmpSongs.size());
+                tmpSongs = cutBottom(tmpSongs);
             }
             catch (Exception ex)
             {
@@ -231,14 +229,33 @@ public class PolskastacjaControllerFragment extends Fragment
             return tmpSongs;
         }
 
+        private List<HandleXml.Song> cutBottom(List<HandleXml.Song> songs)
+        {
+            int playedIndex = 0;
+
+            for (int i = 0; i < songs.size(); ++i)
+            {
+                if (songs.get(i).isPlaying())
+                {
+                    playedIndex = i;
+                    break;
+                }
+            }
+
+            int cutDownIndex = playedIndex - playSongPosition;
+
+            return songs.subList(cutDownIndex, songs.size());
+        }
+
         @Override
-        protected void onPostExecute(List<String> tmpSongs)
+        protected void onPostExecute(List<HandleXml.Song> tmpSongs)
         {
             super.onPostExecute(tmpSongs);
 
             if (ex == null)
             {
-                songs = tmpSongs;
+                songs.clear();
+                songs.addAll(tmpSongs);
 
                 if (songListView.getAdapter() == null)
                 {
@@ -260,7 +277,7 @@ public class PolskastacjaControllerFragment extends Fragment
         }
     }
 
-    private class MyArrayAdapter extends ArrayAdapter<String>
+    private class MyArrayAdapter extends ArrayAdapter<HandleXml.Song>
     {
         private ColorStateList defaultTextColors = null;
 
@@ -274,22 +291,22 @@ public class PolskastacjaControllerFragment extends Fragment
             super(context, resource, textViewResourceId);
         }
 
-        public MyArrayAdapter(Context context, int resource, String[] objects)
+        public MyArrayAdapter(Context context, int resource, HandleXml.Song[] objects)
         {
             super(context, resource, objects);
         }
 
-        public MyArrayAdapter(Context context, int resource, int textViewResourceId, String[] objects)
+        public MyArrayAdapter(Context context, int resource, int textViewResourceId, HandleXml.Song[] objects)
         {
             super(context, resource, textViewResourceId, objects);
         }
 
-        public MyArrayAdapter(Context context, int resource, List<String> objects)
+        public MyArrayAdapter(Context context, int resource, List<HandleXml.Song> objects)
         {
             super(context, resource, objects);
         }
 
-        public MyArrayAdapter(Context context, int resource, int textViewResourceId, List<String> objects)
+        public MyArrayAdapter(Context context, int resource, int textViewResourceId, List<HandleXml.Song> objects)
         {
             super(context, resource, textViewResourceId, objects);
         }
@@ -297,6 +314,7 @@ public class PolskastacjaControllerFragment extends Fragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent)
         {
+
             TextView view = (TextView) super.getView(position, convertView, parent);
 
             if (defaultTextColors == null)

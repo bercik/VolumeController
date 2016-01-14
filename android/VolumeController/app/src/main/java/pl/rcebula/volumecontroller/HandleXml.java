@@ -7,7 +7,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class HandleXml
 {
-    private List<String> songTitles = new ArrayList<>();
+    private List<Song> songs = new ArrayList<>();
     private String urlString = null;
     private XmlPullParserFactory xmlFactoryObject;
 
@@ -26,9 +25,9 @@ public class HandleXml
         this.urlString = url;
     }
 
-    public List<String> getSongTitles()
+    public List<HandleXml.Song> getSongs()
     {
-        return songTitles;
+        return songs;
     }
 
     private void parseXMLAndStoreIt(XmlPullParser myParser)
@@ -36,6 +35,9 @@ public class HandleXml
     {
         int event;
         String text = null;
+        String title = null;
+        Float rate = null;
+        boolean playing = false;
 
         event = myParser.getEventType();
 
@@ -46,6 +48,12 @@ public class HandleXml
             switch (event)
             {
                 case XmlPullParser.START_TAG:
+                    if (name.equals("song"))
+                    {
+                        rate = Float.parseFloat(myParser.getAttributeValue(null, "rate"));
+                        String p = myParser.getAttributeValue(null, "playing");
+                        playing = (p == null) ? false : true;
+                    }
                     break;
 
                 case XmlPullParser.TEXT:
@@ -55,7 +63,12 @@ public class HandleXml
                 case XmlPullParser.END_TAG:
                     if (name.equals("title"))
                     {
-                        songTitles.add(text);
+                        title = text;
+                    }
+                    else if (name.equals("song"))
+                    {
+                        songs.add(new Song(title, rate, playing));
+                        playing = false;
                     }
 
                     break;
@@ -73,6 +86,8 @@ public class HandleXml
         conn.setConnectTimeout(15000 /* milliseconds */);
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
+        conn.setUseCaches(false);
+        conn.setDefaultUseCaches(false);
         conn.connect();
 
         InputStream stream = conn.getInputStream();
@@ -84,5 +99,40 @@ public class HandleXml
 
         parseXMLAndStoreIt(myparser);
         stream.close();
+    }
+
+    public class Song
+    {
+        private String title;
+        private float rate;
+        private boolean playing;
+
+        public Song(String title, float rate, boolean playing)
+        {
+            this.title = title;
+            this.rate = rate;
+            this.playing = playing;
+        }
+
+        public String getTitle()
+        {
+            return title;
+        }
+
+        public float getRate()
+        {
+            return rate;
+        }
+
+        public boolean isPlaying()
+        {
+            return playing;
+        }
+
+        @Override
+        public String toString()
+        {
+            return title + ": " + Float.toString(rate);
+        }
     }
 }
