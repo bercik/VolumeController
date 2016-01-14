@@ -1,19 +1,29 @@
 package pl.rcebula.volumecontroller;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -34,6 +44,43 @@ public class PolskastacjaControllerFragment extends Fragment
 
     private ListView songListView;
     private TextView errorTextView;
+
+    private final int songListUpdateInterval = 5000; // in miliseconds
+    private final int playSongPosition = 1;
+    private final int downSongsRange = 4;
+
+    private Handler songListDownloaderHandler;
+    private ArrayAdapter<String> songListAdapter = null;
+    private List<String> songs;
+
+    private class MyRunnable implements Runnable
+    {
+        private DownloadSongList songListDownloader = new DownloadSongList();
+
+        @Override
+        public void run()
+        {
+            if (songListDownloader.getStatus() == AsyncTask.Status.FINISHED
+                    || songListDownloader.getStatus() == AsyncTask.Status.PENDING)
+            {
+                songListDownloader = new DownloadSongList();
+
+                songListDownloader.execute("http://www.polskastacja.pl/webplayer/" +
+                        "playerControl.php?action=playlist&details=43");
+
+                songListDownloaderHandler.postDelayed(songListDownloaderRunner,
+                        songListUpdateInterval);
+            }
+        }
+
+        public void cancel()
+        {
+            songListDownloaderHandler.removeCallbacks(songListDownloaderRunner);
+            songListDownloader.cancel(true);
+        }
+    }
+
+    MyRunnable songListDownloaderRunner = new MyRunnable();
 
     public PolskastacjaControllerFragment()
     {
@@ -68,7 +115,8 @@ public class PolskastacjaControllerFragment extends Fragment
 
         initializeVariables(view);
 
-        updateSongList();
+        songListDownloaderHandler = new Handler();
+        songListDownloaderRunner.run();
 
         // Inflate the layout for this fragment
         return view;
@@ -78,26 +126,6 @@ public class PolskastacjaControllerFragment extends Fragment
     {
         songListView = (ListView) v.findViewById(R.id.songListView);
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);
-    }
-
-    private void updateSongList()
-    {
-        HandleXml handleXml = new HandleXml(
-                "http://www.polskastacja.pl/webplayer/playerControl.php?action=playlist&details=43");
-        try
-        {
-            errorTextView.setText("");
-            handleXml.fetchXML();
-
-            List<String> songs = handleXml.getSongTitles();
-
-            songListView.setAdapter(new ArrayAdapter<String>(super.getActivity(),
-                    android.R.layout.simple_list_item_1, songs));
-        }
-        catch (IOException | XmlPullParserException ex)
-        {
-            errorTextView.setText(ex.getMessage());
-        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -155,6 +183,137 @@ public class PolskastacjaControllerFragment extends Fragment
         if (isVisibleToUser)
         {
             super.getActivity().setTitle(TITLE);
+        }
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+
+        songListDownloaderRunner.cancel();
+    }
+
+    private class DownloadSongList extends AsyncTask<String, Integer, List<String>>
+    {
+        private Exception ex = null;
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            errorTextView.setText("Loading song list...");
+        }
+
+        @Override
+        protected List<String> doInBackground(String... params)
+        {
+            List<String> tmpSongs = null;
+
+            try
+            {
+                String url = params[0];
+
+                HandleXml handleXml = new HandleXml(url);
+
+                handleXml.fetchXML();
+
+                tmpSongs = handleXml.getSongTitles();
+
+                tmpSongs = tmpSongs.subList(downSongsRange, tmpSongs.size());
+            }
+            catch (Exception ex)
+            {
+                this.ex = ex;
+            }
+
+            return tmpSongs;
+        }
+
+        @Override
+        protected void onPostExecute(List<String> tmpSongs)
+        {
+            super.onPostExecute(tmpSongs);
+
+            if (ex == null)
+            {
+                songs = tmpSongs;
+
+                if (songListView.getAdapter() == null)
+                {
+                    songListAdapter = new MyArrayAdapter(
+                        PolskastacjaControllerFragment.super.getActivity(),
+                        android.R.layout.simple_list_item_1, songs);
+                    songListView.setAdapter(songListAdapter);
+                }
+                else
+                {
+                    songListAdapter.notifyDataSetChanged();
+                }
+                errorTextView.setText("");
+            }
+            else
+            {
+                errorTextView.setText(ex.getMessage());
+            }
+        }
+    }
+
+    private class MyArrayAdapter extends ArrayAdapter<String>
+    {
+        private ColorStateList defaultTextColors = null;
+
+        public MyArrayAdapter(Context context, int resource)
+        {
+            super(context, resource);
+        }
+
+        public MyArrayAdapter(Context context, int resource, int textViewResourceId)
+        {
+            super(context, resource, textViewResourceId);
+        }
+
+        public MyArrayAdapter(Context context, int resource, String[] objects)
+        {
+            super(context, resource, objects);
+        }
+
+        public MyArrayAdapter(Context context, int resource, int textViewResourceId, String[] objects)
+        {
+            super(context, resource, textViewResourceId, objects);
+        }
+
+        public MyArrayAdapter(Context context, int resource, List<String> objects)
+        {
+            super(context, resource, objects);
+        }
+
+        public MyArrayAdapter(Context context, int resource, int textViewResourceId, List<String> objects)
+        {
+            super(context, resource, textViewResourceId, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            TextView view = (TextView) super.getView(position, convertView, parent);
+
+            if (defaultTextColors == null)
+            {
+                defaultTextColors = view.getTextColors();
+            }
+
+            if (position == playSongPosition)
+            {
+                view.setTextColor(Color.RED);
+            }
+            else
+            {
+                view.setTextColor(defaultTextColors);
+            }
+
+            return view;
         }
     }
 }

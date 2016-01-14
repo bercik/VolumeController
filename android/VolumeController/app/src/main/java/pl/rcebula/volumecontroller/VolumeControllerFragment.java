@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -54,7 +56,6 @@ public class VolumeControllerFragment extends Fragment
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
      */
     // TODO: Rename and change types and number of parameters
     public static VolumeControllerFragment newInstance()
@@ -250,7 +251,7 @@ public class VolumeControllerFragment extends Fragment
                 errorTextView.setText("Can't get sound volume from server");
             }
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorTextView.setText(ex.getMessage());
         }
@@ -278,7 +279,7 @@ public class VolumeControllerFragment extends Fragment
                 getVolume();
             }
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorTextView.setText(ex.getMessage());
         }
