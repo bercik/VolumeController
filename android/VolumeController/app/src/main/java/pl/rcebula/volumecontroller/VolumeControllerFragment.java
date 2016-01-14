@@ -47,8 +47,6 @@ public class VolumeControllerFragment extends Fragment
 
     private Client client;
 
-    private BroadcastReceiver wifiReceiver = null;
-
     public static final String TITLE = "Volume Controller";
 
     private OnFragmentInteractionListener mListener;
@@ -201,60 +199,13 @@ public class VolumeControllerFragment extends Fragment
 
         getVolume();
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-
-        wifiReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                ConnectivityManager conMan =
-                        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo netInfo = conMan.getActiveNetworkInfo();
-                if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI)
-                {
-                    getVolume();
-                }
-                else
-                {
-                    errorTextView.setText("You need wifi connection");
-                }
-            }
-        };
-
-        super.getActivity().registerReceiver(wifiReceiver, filter);
-
         // Inflate the layout for this fragment
         return view;
     }
 
     private void getVolume()
     {
-        try
-        {
-            errorTextView.setText("");
-
-            if (!isWifiConnected())
-            {
-                return;
-            }
-
-            int vol = client.getVolume();
-
-            if (vol != -1)
-            {
-                svSeekBar.setProgress(vol);
-            }
-            else
-            {
-                errorTextView.setText("Can't get sound volume from server");
-            }
-        }
-        catch (Exception ex)
-        {
-            errorTextView.setText(ex.getMessage());
-        }
+        new ClientConnectionAsyncTask().execute("GET_VOL");
     }
 
     private void setVolume(boolean getVolAfter)
@@ -264,41 +215,8 @@ public class VolumeControllerFragment extends Fragment
 
     private void setVolume(int vol, boolean getVolAfter)
     {
-        try
-        {
-            errorTextView.setText("");
-
-            if (!isWifiConnected())
-            {
-                return;
-            }
-
-            client.setVolume(vol);
-            if (getVolAfter)
-            {
-                getVolume();
-            }
-        }
-        catch (Exception ex)
-        {
-            errorTextView.setText(ex.getMessage());
-        }
-    }
-
-    private boolean isWifiConnected()
-    {
-        ConnectivityManager connManager =
-                (ConnectivityManager) super.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        if (!mWifi.isConnected())
-        {
-            errorTextView.setText("You need wifi connection");
-
-            return false;
-        }
-
-        return true;
+        new ClientConnectionAsyncTask().execute("SET_VOL", Integer.toString(vol),
+                Boolean.toString(getVolAfter));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -352,12 +270,6 @@ public class VolumeControllerFragment extends Fragment
     public void onStop()
     {
         super.onStop();
-
-        if (wifiReceiver != null)
-        {
-            super.getActivity().unregisterReceiver(wifiReceiver);
-            wifiReceiver = null;
-        }
     }
 
     @Override
@@ -368,6 +280,90 @@ public class VolumeControllerFragment extends Fragment
         if (isVisibleToUser)
         {
             super.getActivity().setTitle(TITLE);
+        }
+    }
+
+    private class ClientConnectionAsyncTask extends AsyncTask<String, Integer, Integer>
+    {
+        private Exception ex = null;
+        boolean setVol = false;
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            if (!((MainActivity) getActivity()).isWifiAvailable())
+            {
+                errorTextView.setText("You need wifi connection");
+
+                this.cancel(true);
+
+                return;
+            }
+
+            errorTextView.setText("");
+        }
+
+        @Override
+        protected Integer doInBackground(String... params)
+        {
+            Integer vol = null;
+
+            try
+            {
+                String action = params[0];
+
+                if (action.equals("GET_VOL"))
+                {
+                    setVol = true;
+                    vol = client.getVolume();
+                }
+                else if (action.equals("SET_VOL"))
+                {
+                    vol = Integer.parseInt(params[1]);
+                    boolean getVolAfter = Boolean.parseBoolean(params[2]);
+                    client.setVolume(vol);
+
+                    if (getVolAfter)
+                    {
+                        setVol = true;
+                        vol = client.getVolume();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.ex = ex;
+            }
+
+            return vol;
+        }
+
+        @Override
+        protected void onPostExecute(Integer vol)
+        {
+            super.onPostExecute(vol);
+
+            if (ex != null)
+            {
+                errorTextView.setText(ex.getMessage());
+                return;
+            }
+
+            if (setVol)
+            {
+                if (vol != -1)
+                {
+                    svSeekBar.setProgress(vol);
+                }
+                else
+                {
+                    errorTextView.setText("Can't get sound volume from server");
+                }
+            }
+
+            errorTextView.setText("");
         }
     }
 }

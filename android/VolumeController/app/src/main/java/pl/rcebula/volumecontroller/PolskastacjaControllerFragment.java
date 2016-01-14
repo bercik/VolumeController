@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +56,6 @@ public class PolskastacjaControllerFragment extends Fragment
             if (songListDownloader.getStatus() == AsyncTask.Status.FINISHED
                     || songListDownloader.getStatus() == AsyncTask.Status.PENDING)
             {
-                Log.d("polskastacja", "download song list");
-
                 songListDownloader = new DownloadSongList();
 
                 songListDownloader.execute("http://www.polskastacja.pl/webplayer/" +
@@ -112,7 +111,18 @@ public class PolskastacjaControllerFragment extends Fragment
         initializeVariables(view);
 
         songListDownloaderHandler = new Handler();
-        songListDownloaderRunner.run();
+
+        songListAdapter = new MyArrayAdapter(
+                PolskastacjaControllerFragment.super.getActivity(),
+                android.R.layout.simple_list_item_1, songs);
+        songListView.setAdapter(songListAdapter);
+
+        if (savedInstanceState != null)
+        {
+            songs.clear();
+            songs.addAll((List<HandleXml.Song>) savedInstanceState.getSerializable("songs"));
+            songListAdapter.notifyDataSetChanged();
+        }
 
         // Inflate the layout for this fragment
         return view;
@@ -183,6 +193,16 @@ public class PolskastacjaControllerFragment extends Fragment
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        Log.d("polskastacja", "resume");
+
+        songListDownloaderRunner.run();
+    }
+
+    @Override
     public void onStop()
     {
         super.onStop();
@@ -190,6 +210,16 @@ public class PolskastacjaControllerFragment extends Fragment
         Log.d("polskastacja", "stop");
 
         songListDownloaderRunner.cancel();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        Log.d("polskastacja", "save instance bundle");
+
+        outState.putSerializable("songs", (Serializable)songs);
     }
 
     private class DownloadSongList extends AsyncTask<String, Integer, List<HandleXml.Song>>
@@ -200,6 +230,14 @@ public class PolskastacjaControllerFragment extends Fragment
         protected void onPreExecute()
         {
             super.onPreExecute();
+
+            if (!((MainActivity)PolskastacjaControllerFragment.super.getActivity()).isNetworkAvailable())
+            {
+                errorTextView.setText("You need internet connection");
+
+                this.cancel(true);
+                return;
+            }
 
             errorTextView.setText("Loading song list...");
         }
@@ -257,17 +295,8 @@ public class PolskastacjaControllerFragment extends Fragment
                 songs.clear();
                 songs.addAll(tmpSongs);
 
-                if (songListView.getAdapter() == null)
-                {
-                    songListAdapter = new MyArrayAdapter(
-                        PolskastacjaControllerFragment.super.getActivity(),
-                        android.R.layout.simple_list_item_1, songs);
-                    songListView.setAdapter(songListAdapter);
-                }
-                else
-                {
-                    songListAdapter.notifyDataSetChanged();
-                }
+                songListAdapter.notifyDataSetChanged();
+
                 errorTextView.setText("");
             }
             else

@@ -3,7 +3,10 @@ package pl.rcebula.volumecontroller;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
@@ -21,8 +24,8 @@ import android.view.ViewGroup;
 
 public class MainActivity extends ActionBarActivity
         implements VolumeControllerFragment.OnFragmentInteractionListener,
-                   UrlControllerFragment.OnFragmentInteractionListener,
-                   PolskastacjaControllerFragment.OnFragmentInteractionListener
+        UrlControllerFragment.OnFragmentInteractionListener,
+        PolskastacjaControllerFragment.OnFragmentInteractionListener
 {
 
     /**
@@ -190,5 +193,26 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    public boolean isNetworkAvailable()
+    {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public boolean isWifiAvailable()
+    {
+        ConnectivityManager connManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (!mWifi.isConnected())
+        {
+            return false;
+        }
+
+        return true;
+    }
 
 }

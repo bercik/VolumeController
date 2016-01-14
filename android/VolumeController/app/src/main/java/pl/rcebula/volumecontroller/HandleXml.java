@@ -6,6 +6,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class HandleXml
         stream.close();
     }
 
-    public class Song
+    public static class Song implements Serializable
     {
         private String title;
         private float rate;
