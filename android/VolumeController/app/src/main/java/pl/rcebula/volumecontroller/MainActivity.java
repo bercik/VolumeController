@@ -85,6 +85,9 @@ public class MainActivity extends ActionBarActivity
 
         client = new Client(host, MainActivity.PORT);
 
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         createNotification();
         new ClientGetVolumeAsyncTask().execute();
     }
@@ -179,6 +182,8 @@ public class MainActivity extends ActionBarActivity
             super(fm);
         }
 
+
+
         @Override
         public Fragment getItem(int position)
         {
@@ -268,7 +273,7 @@ public class MainActivity extends ActionBarActivity
 
         mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_name)
+                        .setSmallIcon(R.drawable.ic_stat_notification_icon)
                         .setContentTitle("Volume Controller")
                         .setContentText("")
                         .setAutoCancel(false)

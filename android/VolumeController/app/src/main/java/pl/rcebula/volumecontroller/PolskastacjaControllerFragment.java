@@ -11,6 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -211,7 +214,11 @@ public class PolskastacjaControllerFragment extends Fragment
 
         if (isVisibleToUser)
         {
-            super.getActivity().setTitle(TITLE);
+            super.getActivity().setTitle(Html.fromHtml("<small>" + TITLE + "</small>"));
+
+            ActionBarActivity activity = (ActionBarActivity)super.getActivity();
+            ActionBar actionBar = activity.getSupportActionBar();
+            actionBar.setLogo(R.mipmap.ic_polskastacja);
         }
     }
 

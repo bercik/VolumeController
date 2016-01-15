@@ -1,17 +1,18 @@
 package pl.rcebula.volumecontroller;
 
+import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import java.io.IOException;
-import java.util.List;
 
 
 /**
@@ -318,7 +316,11 @@ public class VolumeControllerFragment extends Fragment
 
         if (isVisibleToUser)
         {
-            super.getActivity().setTitle(TITLE);
+            super.getActivity().setTitle(Html.fromHtml("<small>" + TITLE + "</small>"));
+
+            ActionBarActivity activity = (ActionBarActivity)super.getActivity();
+            ActionBar actionBar = activity.getSupportActionBar();
+            actionBar.setLogo(R.mipmap.ic_speaker);
         }
     }
 
