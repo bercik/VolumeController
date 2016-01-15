@@ -1,20 +1,28 @@
 package pl.rcebula.volumecontroller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.StrictMode;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,11 +58,15 @@ public class MainActivity extends ActionBarActivity
     public static final String URL2 =
             "https://play.spotify.com/user/bercikos/playlist/06yODuxCoQ6OQSPS81bmtX?play=true";
 
+    private Client client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d("main", "create");
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -63,8 +75,19 @@ public class MainActivity extends ActionBarActivity
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        SharedPreferences settings = getSharedPreferences("Preferences", 0);
+        String host = settings.getString("ipaddress", MainActivity.HOST);
+
+        client = new Client(host, MainActivity.PORT);
+
+        new ClientGetVolumeAsyncTask().execute();
     }
 
+    public Client getClient()
+    {
+        return client;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -94,6 +117,42 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onPostResume()
+    {
+        super.onPostResume();
+
+        Log.d("main", "resume");
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        super.onNewIntent(intent);
+
+        Log.d("main", "new intent");
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        Log.d("main", "stop");
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        Log.d("main", "destroy");
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // 0 allows you to update the notification later on.
+        mNotificationManager.cancel(0);
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -147,6 +206,58 @@ public class MainActivity extends ActionBarActivity
             }
             return null;
         }
+    }
+
+    private class ClientGetVolumeAsyncTask extends AsyncTask<String, Integer, Integer>
+    {
+
+
+        @Override
+        protected Integer doInBackground(String... params)
+        {
+            int vol;
+
+            try
+            {
+                vol = client.getVolume();
+            }
+            catch (IOException ex)
+            {
+                vol = 0;
+            }
+
+            return vol;
+        }
+
+        @Override
+        protected void onPostExecute(Integer vol)
+        {
+            super.onPostExecute(vol);
+
+            // createNotification(vol);
+            createNotification(vol);
+        }
+    }
+
+    private void createNotification(int vol)
+    {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_stat_name)
+                        .setContentTitle("Volume Controller")
+                        .setContentText("")
+                        .setProgress(100, vol, false)
+                        .setAutoCancel(false);
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // 0 allows you to update the notification later on.
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
     /**

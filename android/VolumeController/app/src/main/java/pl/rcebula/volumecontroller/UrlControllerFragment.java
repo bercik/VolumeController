@@ -35,9 +35,6 @@ import java.io.IOException;
  */
 public class UrlControllerFragment extends Fragment
 {
-
-    private Client client;
-
     public static final String TITLE = "URL Controller";
 
     private Button openButton;
@@ -52,6 +49,8 @@ public class UrlControllerFragment extends Fragment
     private String url2;
 
     private OnFragmentInteractionListener mListener;
+
+    private MainActivity mainActivity;
 
     /**
      * Use this factory method to create a new instance of
@@ -81,12 +80,11 @@ public class UrlControllerFragment extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_url_controller, container, false);
 
+        mainActivity = (MainActivity) getActivity();
+
         SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
-        String host = settings.getString("ipaddress", MainActivity.HOST);
         url1 = settings.getString("url1", MainActivity.URL1);
         url2 = settings.getString("url2", MainActivity.URL2);
-
-        client = new Client(host, MainActivity.PORT);
 
         initializeVariables(view);
 
@@ -171,17 +169,17 @@ public class UrlControllerFragment extends Fragment
             url = url2;
         }
 
-        new ClientConnectionAsyncTask().execute(client.OPEN_URL, url);
+        new ClientConnectionAsyncTask().execute(mainActivity.getClient().OPEN_URL, url);
     }
 
     private void closeURL()
     {
-        new ClientConnectionAsyncTask().execute(client.CLOSE_URL);
+        new ClientConnectionAsyncTask().execute(mainActivity.getClient().CLOSE_URL);
     }
 
     private void shutdown()
     {
-        new ClientConnectionAsyncTask().execute(client.SHUTDOWN);
+        new ClientConnectionAsyncTask().execute(mainActivity.getClient().SHUTDOWN);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -257,7 +255,7 @@ public class UrlControllerFragment extends Fragment
         {
             super.onPreExecute();
 
-            if (!((MainActivity) getActivity()).isWifiAvailable())
+            if (!mainActivity.isWifiAvailable())
             {
                 errorTextView.setText("You need wifi connection");
 
@@ -276,19 +274,19 @@ public class UrlControllerFragment extends Fragment
             {
                 String action = params[0];
 
-                if (action.equals(client.OPEN_URL))
+                if (action.equals(mainActivity.getClient().OPEN_URL))
                 {
                     String url = params[1];
 
-                    client.openURL(url);
+                    mainActivity.getClient().openURL(url);
                 }
-                else if (action.equals(client.CLOSE_URL))
+                else if (action.equals(mainActivity.getClient().CLOSE_URL))
                 {
-                    client.closeURL();
+                    mainActivity.getClient().closeURL();
                 }
-                else if (action.equals(client.SHUTDOWN))
+                else if (action.equals(mainActivity.getClient().SHUTDOWN))
                 {
-                    client.shutdown();
+                    mainActivity.getClient().shutdown();
                 }
             }
             catch (Exception ex)

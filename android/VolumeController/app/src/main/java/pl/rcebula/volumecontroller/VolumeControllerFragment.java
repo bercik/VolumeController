@@ -45,7 +45,7 @@ public class VolumeControllerFragment extends Fragment
     private CheckBox muteCheckBox;
     private TextView errorTextView;
 
-    private Client client;
+    private MainActivity mainActivity;
 
     public static final String TITLE = "Volume Controller";
 
@@ -95,12 +95,13 @@ public class VolumeControllerFragment extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_volume_controller, container, false);
 
+        mainActivity = (MainActivity) getActivity();
+
         initializeVariables(view);
 
         SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
         String host = settings.getString("ipaddress", MainActivity.HOST);
 
-        client = new Client(host, MainActivity.PORT);
         errorTextView.setText("");
 
         // add events
@@ -205,7 +206,7 @@ public class VolumeControllerFragment extends Fragment
 
     private void getVolume()
     {
-        new ClientConnectionAsyncTask().execute(client.GET_VOLUME);
+        new ClientConnectionAsyncTask().execute(mainActivity.getClient().GET_VOLUME);
     }
 
     private void setVolume(boolean getVolAfter)
@@ -215,7 +216,7 @@ public class VolumeControllerFragment extends Fragment
 
     private void setVolume(int vol, boolean getVolAfter)
     {
-        new ClientConnectionAsyncTask().execute(client.SET_VOLUME, Integer.toString(vol),
+        new ClientConnectionAsyncTask().execute(mainActivity.getClient().SET_VOLUME, Integer.toString(vol),
                 Boolean.toString(getVolAfter));
     }
 
@@ -293,7 +294,7 @@ public class VolumeControllerFragment extends Fragment
         {
             super.onPreExecute();
 
-            if (!((MainActivity) getActivity()).isWifiAvailable())
+            if (!mainActivity.isWifiAvailable())
             {
                 errorTextView.setText("You need wifi connection");
 
@@ -314,21 +315,21 @@ public class VolumeControllerFragment extends Fragment
             {
                 String action = params[0];
 
-                if (action.equals(client.GET_VOLUME))
+                if (action.equals(mainActivity.getClient().GET_VOLUME))
                 {
                     setVol = true;
-                    vol = client.getVolume();
+                    vol = mainActivity.getClient().getVolume();
                 }
-                else if (action.equals(client.SET_VOLUME))
+                else if (action.equals(mainActivity.getClient().SET_VOLUME))
                 {
                     vol = Integer.parseInt(params[1]);
                     boolean getVolAfter = Boolean.parseBoolean(params[2]);
-                    client.setVolume(vol);
+                    mainActivity.getClient().setVolume(vol);
 
                     if (getVolAfter)
                     {
                         setVol = true;
-                        vol = client.getVolume();
+                        vol = mainActivity.getClient().getVolume();
                     }
                 }
             }
