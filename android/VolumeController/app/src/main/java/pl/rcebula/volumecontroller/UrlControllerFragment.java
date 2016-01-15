@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -42,10 +43,13 @@ public class UrlControllerFragment extends Fragment
     private Button openButton;
     private Button closeButton;
     private TextView errorTextView;
-    private TextView urlTextView;
     private Button shutdownButton;
 
-    private String url;
+    private RadioButton url1RadioButton;
+    private RadioButton url2RadioButton;
+
+    private String url1;
+    private String url2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -79,13 +83,16 @@ public class UrlControllerFragment extends Fragment
 
         SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
         String host = settings.getString("ipaddress", MainActivity.HOST);
-        url = settings.getString("url", MainActivity.URL);
+        url1 = settings.getString("url1", MainActivity.URL1);
+        url2 = settings.getString("url2", MainActivity.URL2);
 
         client = new Client(host, MainActivity.PORT);
 
         initializeVariables(view);
 
-        urlTextView.setText("URL: " + url);
+        url1RadioButton.setText(url1);
+        url2RadioButton.setText(url2);
+
         errorTextView.setText("");
 
         openButton.setOnClickListener(new View.OnClickListener()
@@ -144,7 +151,8 @@ public class UrlControllerFragment extends Fragment
     private void initializeVariables(View v)
     {
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);
-        urlTextView = (TextView) v.findViewById(R.id.urlTextView);
+        url1RadioButton = (RadioButton) v.findViewById(R.id.url1RadioButton);
+        url2RadioButton = (RadioButton) v.findViewById(R.id.url2RadioButton);
         openButton = (Button) v.findViewById(R.id.openButton);
         closeButton = (Button) v.findViewById(R.id.closeButton);
         shutdownButton = (Button) v.findViewById(R.id.shutdownButton);
@@ -152,6 +160,17 @@ public class UrlControllerFragment extends Fragment
 
     private void openURL()
     {
+        String url = null;
+
+        if (url1RadioButton.isChecked())
+        {
+            url = url1;
+        }
+        else if (url2RadioButton.isChecked())
+        {
+            url = url2;
+        }
+
         new ClientConnectionAsyncTask().execute(client.OPEN_URL, url);
     }
 

@@ -23,7 +23,8 @@ public class SettingsActivity extends ActionBarActivity
     private Button cancelButton;
     private EditText ipAddressEditText;
     private TextView errorTextView;
-    private EditText urlEditText;
+    private EditText url1EditText;
+    private EditText url2EditText;
     private Button setToDefaultButton;
 
     private void initializeVariables()
@@ -32,7 +33,8 @@ public class SettingsActivity extends ActionBarActivity
         cancelButton = (Button) findViewById(R.id.cancelButton);
         ipAddressEditText = (EditText) findViewById(R.id.ipAddressEditText);
         errorTextView = (TextView) findViewById(R.id.errorTextView);
-        urlEditText = (EditText) findViewById(R.id.urlEditText);
+        url1EditText = (EditText) findViewById(R.id.url1EditText);
+        url2EditText = (EditText) findViewById(R.id.url2EditText);
         setToDefaultButton = (Button) findViewById(R.id.setToDefaultButton);
     }
 
@@ -63,10 +65,18 @@ public class SettingsActivity extends ActionBarActivity
                     return;
                 }
 
-                String url = urlEditText.getText().toString();
-                if (!URLUtil.isValidUrl(url))
+                String url1 = url1EditText.getText().toString();
+                if (!URLUtil.isValidUrl(url1))
                 {
-                    errorTextView.setText("Invalid URL");
+                    errorTextView.setText("Invalid URL 1");
+
+                    return;
+                }
+
+                String url2 = url2EditText.getText().toString();
+                if (!URLUtil.isValidUrl(url2))
+                {
+                    errorTextView.setText("Invalid URL 2");
 
                     return;
                 }
@@ -74,7 +84,8 @@ public class SettingsActivity extends ActionBarActivity
                 SharedPreferences settings = getSharedPreferences("Preferences", 0);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString("ipaddress", ipAddress);
-                editor.putString("url", url);
+                editor.putString("url1", url1);
+                editor.putString("url2", url2);
                 editor.commit();
 
                 finish();
@@ -96,7 +107,8 @@ public class SettingsActivity extends ActionBarActivity
             public void onClick(View v)
             {
                 ipAddressEditText.setText(MainActivity.HOST);
-                urlEditText.setText(MainActivity.URL);
+                url1EditText.setText(MainActivity.URL1);
+                url2EditText.setText(MainActivity.URL2);
             }
         });
     }
@@ -105,7 +117,8 @@ public class SettingsActivity extends ActionBarActivity
     {
         SharedPreferences settings = getSharedPreferences("Preferences", 0);
         ipAddressEditText.setText(settings.getString("ipaddress", MainActivity.HOST));
-        urlEditText.setText(settings.getString("url", MainActivity.URL));
+        url1EditText.setText(settings.getString("url1", MainActivity.URL1));
+        url2EditText.setText(settings.getString("url2", MainActivity.URL2));
     }
 
     private boolean checkIPv4(final String ip)

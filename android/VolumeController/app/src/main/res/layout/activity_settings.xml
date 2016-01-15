@@ -14,17 +14,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="ip address:"
         android:id="@+id/textView"
-        android:layout_above="@+id/textView4"
+        android:layout_alignBottom="@+id/ipAddressEditText"
         android:layout_alignParentStart="true"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/ipAddressEditText"
-        android:layout_alignParentEnd="true"
+        android:singleLine="true"
+        android:layout_alignEnd="@+id/textView2"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/textView"
-        android:singleLine="true"/>
+        android:layout_toEndOf="@+id/textView"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -48,9 +48,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="ERROR HERE"
         android:id="@+id/errorTextView"
+        android:textColor="#ffff0000"
         android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-        android:textColor="#ffff0000"/>
+        android:layout_alignParentStart="true"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -66,20 +66,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="URL:"
+        android:text="URL 1:"
         android:id="@+id/textView4"
-        android:layout_marginTop="26dp"
-        android:layout_below="@+id/ipAddressEditText"
+        android:layout_above="@+id/url2EditText"
         android:layout_alignParentStart="true"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/urlEditText"
-        android:layout_alignBottom="@+id/textView4"
+        android:id="@+id/url1EditText"
+        android:singleLine="true"
+        android:layout_below="@+id/textView"
         android:layout_alignStart="@+id/ipAddressEditText"
-        android:layout_alignEnd="@+id/ipAddressEditText"
-        android:singleLine="true"/>
+        android:layout_toStartOf="@+id/ipAddressEditText"
+        android:layout_alignEnd="@+id/ipAddressEditText"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -88,4 +88,23 @@
         android:id="@+id/setToDefaultButton"
         android:layout_above="@+id/cancelButton"
         android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="URL 2:"
+        android:id="@+id/textView5"
+        android:layout_alignBottom="@+id/url2EditText"
+        android:layout_alignParentStart="true"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/url2EditText"
+        android:singleLine="true"
+        android:layout_below="@+id/url1EditText"
+        android:layout_alignEnd="@+id/cancelButton"
+        android:layout_alignStart="@+id/url1EditText"/>
+
 </RelativeLayout>

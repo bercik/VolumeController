@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -34,7 +35,9 @@ public class Client
     {
         InetAddress serverAddr = InetAddress.getByName(host);
 
-        Socket socket = new Socket(serverAddr, port);
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(serverAddr, port), 1000);
+        socket.setSoTimeout(1000);
 
         return socket;
     }

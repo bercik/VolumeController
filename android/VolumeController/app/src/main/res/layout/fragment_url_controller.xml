@@ -10,21 +10,12 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="URL:"
-        android:id="@+id/urlTextView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"/>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Open"
         android:id="@+id/openButton"
-        android:layout_below="@+id/urlTextView"
+        android:layout_below="@+id/radioGroup"
         android:layout_alignParentStart="true"/>
 
     <Button
@@ -32,8 +23,8 @@
         android:layout_height="wrap_content"
         android:text="Close"
         android:id="@+id/closeButton"
-        android:layout_alignBottom="@+id/openButton"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignTop="@+id/openButton"
+        android:layout_alignEnd="@+id/radioGroup"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,10 +32,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="ERROR HERE"
         android:id="@+id/errorTextView"
+        android:textColor="#ffff0000"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="73dp"
-        android:textColor="#ffff0000"/>
+        android:layout_alignParentStart="true"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -53,5 +43,34 @@
         android:id="@+id/shutdownButton"
         android:layout_below="@+id/openButton"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignEnd="@+id/closeButton"/>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioGroup"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="URL 1"
+            android:id="@+id/url1RadioButton"
+            android:checked="true"
+            android:singleLine="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="URL 2"
+            android:id="@+id/url2RadioButton"
+            android:singleLine="true"
+            android:layout_below="@+id/url1RadioButton"
+            android:layout_alignParentStart="true"/>
+
+    </RadioGroup>
+
 </RelativeLayout>
