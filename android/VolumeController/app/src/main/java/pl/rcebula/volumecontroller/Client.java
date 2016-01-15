@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -16,7 +17,7 @@ import java.net.UnknownHostException;
 /**
  * Created by robert on 11.01.16.
  */
-public class Client
+public class Client implements Serializable
 {
     public final String OPEN_URL = "OPEN_URL";
     public final String CLOSE_URL = "CLOSE_URL";

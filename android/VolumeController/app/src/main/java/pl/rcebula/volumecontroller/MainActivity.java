@@ -7,6 +7,7 @@ import java.util.Locale;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +61,9 @@ public class MainActivity extends ActionBarActivity
 
     private Client client;
 
+    private static NotificationCompat.Builder mBuilder;
+    private static NotificationManager mNotificationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -81,6 +85,7 @@ public class MainActivity extends ActionBarActivity
 
         client = new Client(host, MainActivity.PORT);
 
+        createNotification();
         new ClientGetVolumeAsyncTask().execute();
     }
 
@@ -118,11 +123,19 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onPostResume()
+    protected void onResume()
     {
-        super.onPostResume();
+        super.onResume();
 
         Log.d("main", "resume");
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        Log.d("main", "pause");
     }
 
     @Override
@@ -210,8 +223,6 @@ public class MainActivity extends ActionBarActivity
 
     private class ClientGetVolumeAsyncTask extends AsyncTask<String, Integer, Integer>
     {
-
-
         @Override
         protected Integer doInBackground(String... params)
         {
@@ -235,27 +246,52 @@ public class MainActivity extends ActionBarActivity
             super.onPostExecute(vol);
 
             // createNotification(vol);
-            createNotification(vol);
+            updateNotification(vol);
         }
     }
 
-    private void createNotification(int vol)
+    private void createNotification()
     {
-        NotificationCompat.Builder mBuilder =
+        Intent incVolIntent = new Intent(getApplicationContext(), VolumeControllerService.class);
+        incVolIntent.putExtra(VolumeControllerService.PARAM_CLIENT, client);
+        incVolIntent.putExtra(VolumeControllerService.PARAM_INC, 5);
+        incVolIntent.setAction(VolumeControllerService.ACTION_INC_VOL);
+        PendingIntent incVolPIntent = PendingIntent.getService(getApplicationContext(),
+                (int) System.currentTimeMillis(), incVolIntent, 0);
+
+        Intent decVolIntent = new Intent(getApplicationContext(), VolumeControllerService.class);
+        incVolIntent.putExtra(VolumeControllerService.PARAM_CLIENT, client);
+        incVolIntent.putExtra(VolumeControllerService.PARAM_INC, -5);
+        incVolIntent.setAction(VolumeControllerService.ACTION_INC_VOL);
+        PendingIntent decVolPIntent = PendingIntent.getService(getApplicationContext(),
+                (int) System.currentTimeMillis(), incVolIntent, 0);
+
+        mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_stat_name)
                         .setContentTitle("Volume Controller")
                         .setContentText("")
-                        .setProgress(100, vol, false)
-                        .setAutoCancel(false);
+                        .setAutoCancel(false)
+                        .setOngoing(true)
+                        .addAction(R.drawable.ic_stat_plus, "+5", incVolPIntent)
+                        .addAction(R.drawable.ic_stat_minus, "-5", decVolPIntent);
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
 
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                (int) System.currentTimeMillis(), resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
+        mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // 0 allows you to update the notification later on.
+        mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    public static void updateNotification(int newVol)
+    {
+        mBuilder.setProgress(100, newVol, false);
+        mBuilder.setContentText(Integer.toString(newVol) + "%");
+
         // 0 allows you to update the notification later on.
         mNotificationManager.notify(0, mBuilder.build());
     }

@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,8 @@ public class VolumeControllerFragment extends Fragment
     private MainActivity mainActivity;
 
     public static final String TITLE = "Volume Controller";
+
+    private VolumeSetReceiver volumeSetReceiver;
 
     private OnFragmentInteractionListener mListener;
 
@@ -86,7 +89,7 @@ public class VolumeControllerFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
 
-
+        Log.d("volume controller", "create");
     }
 
     @Override
@@ -94,6 +97,8 @@ public class VolumeControllerFragment extends Fragment
                              Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_volume_controller, container, false);
+
+        Log.d("volume controller", "create view");
 
         mainActivity = (MainActivity) getActivity();
 
@@ -111,6 +116,8 @@ public class VolumeControllerFragment extends Fragment
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
                 svTextView.setText("Sound volume: " + Integer.toString(progress) + "%");
+
+                mainActivity.updateNotification(progress);
             }
 
             @Override
@@ -200,6 +207,11 @@ public class VolumeControllerFragment extends Fragment
 
         getVolume();
 
+        IntentFilter filter = new IntentFilter(VolumeSetReceiver.ACTION_RESP);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        volumeSetReceiver = new VolumeSetReceiver();
+        getActivity().registerReceiver(volumeSetReceiver, filter);
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -251,6 +263,20 @@ public class VolumeControllerFragment extends Fragment
         mListener = null;
     }
 
+    public class VolumeSetReceiver extends BroadcastReceiver
+    {
+        public static final String ACTION_RESP =
+                "VOLUME_SET";
+
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            int vol = intent.getIntExtra(VolumeControllerService.PARAM_OUT, -1);
+
+            svSeekBar.setProgress(vol);
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -271,6 +297,18 @@ public class VolumeControllerFragment extends Fragment
     public void onStop()
     {
         super.onStop();
+
+        Log.d("volume controller", "stop");
+    }
+
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+
+        Log.d("volume controller", "destroy view");
+
+        getActivity().unregisterReceiver(volumeSetReceiver);
     }
 
     @Override
