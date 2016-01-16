@@ -149,6 +149,11 @@ public class UrlControllerFragment extends Fragment
         return view;
     }
 
+    private void createRadioButtons()
+    {
+
+    }
+
     private void initializeVariables(View v)
     {
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);

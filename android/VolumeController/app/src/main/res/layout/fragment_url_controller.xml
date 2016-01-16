@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="Open"
         android:id="@+id/openButton"
-        android:layout_below="@+id/radioGroup"
+        android:layout_above="@+id/shutdownButton"
         android:layout_alignParentStart="true"/>
 
     <Button
@@ -24,7 +24,7 @@
         android:text="Close"
         android:id="@+id/closeButton"
         android:layout_alignTop="@+id/openButton"
-        android:layout_alignEnd="@+id/radioGroup"/>
+        android:layout_alignEnd="@+id/urlsRadioGroup"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,35 +41,17 @@
         android:layout_height="wrap_content"
         android:text="shutdown computer"
         android:id="@+id/shutdownButton"
-        android:layout_below="@+id/openButton"
+        android:layout_above="@+id/errorTextView"
         android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/closeButton"/>
+        android:layout_alignEnd="@+id/urlsRadioGroup"/>
 
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/radioGroup"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="URL 1"
-            android:id="@+id/url1RadioButton"
-            android:checked="true"
-            android:singleLine="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="URL 2"
-            android:id="@+id/url2RadioButton"
-            android:singleLine="true"
-            android:layout_below="@+id/url1RadioButton"
-            android:layout_alignParentStart="true"/>
+        android:id="@+id/urlsRadioGroup"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/openButton"
+        android:layout_alignParentTop="true">
 
     </RadioGroup>
 

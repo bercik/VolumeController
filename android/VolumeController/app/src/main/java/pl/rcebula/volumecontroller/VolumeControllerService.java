@@ -98,7 +98,7 @@ public class VolumeControllerService extends IntentService
                 sendBroadcast(broadcastIntent);
             }
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             Log.e("volume controller serv", ex.getMessage());
         }

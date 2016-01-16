@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -11,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -164,10 +166,14 @@ public class MainActivity extends ActionBarActivity
 
         Log.d("main", "destroy");
 
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // 0 allows you to update the notification later on.
-        mNotificationManager.cancel(0);
+        // destroy notification only if application is the only one in stack
+        if (isTaskRoot())
+        {
+            mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // 0 allows you to update the notification later on.
+            mNotificationManager.cancel(0);
+        }
     }
 
     /**
@@ -273,6 +279,7 @@ public class MainActivity extends ActionBarActivity
 
         mBuilder =
                 new NotificationCompat.Builder(this)
+                        .setLargeIcon((((BitmapDrawable)getApplicationContext().getResources().getDrawable(R.mipmap.ic_launcher)).getBitmap()))
                         .setSmallIcon(R.drawable.ic_stat_notification_icon)
                         .setContentTitle("Volume Controller")
                         .setContentText("")

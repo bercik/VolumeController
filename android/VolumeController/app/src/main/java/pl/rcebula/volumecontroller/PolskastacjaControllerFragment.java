@@ -15,9 +15,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -44,7 +48,6 @@ public class PolskastacjaControllerFragment extends Fragment
 
     private ListView songListView;
     private TextView errorTextView;
-    private Button copyToClipboard;
 
     private final int songListUpdateInterval = 10000; // in miliseconds
     private final int playSongPosition = 1;
@@ -131,33 +134,46 @@ public class PolskastacjaControllerFragment extends Fragment
             songListAdapter.notifyDataSetChanged();
         }
 
-        copyToClipboard.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                int playedIndex = getPlayedIndex(songs);
-                if (playedIndex != -1)
-                {
-                    HandleXml.Song playedSong = songs.get(playedIndex);
-
-                    ClipboardManager clipboard =
-                            (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("song title", playedSong.getTitle());
-                    clipboard.setPrimaryClip(clip);
-                }
-            }
-        });
+        registerForContextMenu(songListView);
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        if (v == songListView)
+        {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            menu.setHeaderTitle(songs.get(info.position).getTitle());
+            menu.add("Copy to clipboard");
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item)
+    {
+        super.onContextItemSelected(item);
+
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        String songTitle = songs.get(info.position).getTitle();
+
+        ClipboardManager clipboard =
+                (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("song title", songTitle);
+        clipboard.setPrimaryClip(clip);
+
+        return true;
     }
 
     private void initializeVariables(View v)
     {
         songListView = (ListView) v.findViewById(R.id.songListView);
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);
-        copyToClipboard = (Button) v.findViewById(R.id.copyToClipboardbutton);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
