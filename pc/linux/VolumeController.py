@@ -63,6 +63,7 @@ class BrowserController:
 
         if self.proc != None:
             self.closeURL()
+            time.sleep(0.5)
 
         self.proc = subprocess.Popen(['google-chrome',  
             '--user-data-dir=' + CHROME_USER_DIR, url])

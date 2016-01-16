@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.StateListDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -158,13 +159,30 @@ public class UrlControllerFragment extends Fragment
 
     private void createRadioButtons()
     {
+        boolean first = true;
+
         for (Urls.Url url : urls)
         {
-            RadioButton rb = new RadioButton(getActivity(), null, );
+            RadioButton rb = new RadioButton(getActivity());
+
+            StateListDrawable stateListDrawable = new StateListDrawable();
+            stateListDrawable.addState(new int[] { android.R.attr.state_checked },
+                    getResources().getDrawable(R.mipmap.checked_radio_button));
+            stateListDrawable.addState(new int[] { },
+                    getResources().getDrawable(R.mipmap.unchecked_radio_button));
+            rb.setButtonDrawable(stateListDrawable);
 
             rb.setText(url.getDescription());
 
             urlsRadioGroup.addView(rb);
+
+            if (first)
+            {
+                first = false;
+                rb.setChecked(true);
+            }
+
+            urlRadioButtons.add(rb);
         }
     }
 
@@ -180,6 +198,14 @@ public class UrlControllerFragment extends Fragment
     private void openURL()
     {
         String url = null;
+
+        for (int i = 0; i < urlRadioButtons.size(); ++i)
+        {
+            if (urlRadioButtons.get(i).isChecked())
+            {
+                url = urls.get(i).getUrl();
+            }
+        }
 
         new ClientConnectionAsyncTask().execute(mainActivity.getClient().OPEN_URL, url);
     }
