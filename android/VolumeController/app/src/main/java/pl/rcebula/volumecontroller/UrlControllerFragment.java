@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -23,9 +25,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -45,11 +50,12 @@ public class UrlControllerFragment extends Fragment
     private TextView errorTextView;
     private Button shutdownButton;
 
-    private RadioButton url1RadioButton;
-    private RadioButton url2RadioButton;
+    private RadioGroup urlsRadioGroup;
+    private List<RadioButton> urlRadioButtons;
 
     private String url1;
     private String url2;
+    private List<Urls.Url> urls;
 
     private OnFragmentInteractionListener mListener;
 
@@ -89,10 +95,11 @@ public class UrlControllerFragment extends Fragment
         url1 = settings.getString("url1", MainActivity.URL1);
         url2 = settings.getString("url2", MainActivity.URL2);
 
-        initializeVariables(view);
+        urls = new Urls().getUrls();
+        urlRadioButtons = new ArrayList<>();
 
-        url1RadioButton.setText(url1);
-        url2RadioButton.setText(url2);
+        initializeVariables(view);
+        createRadioButtons();
 
         errorTextView.setText("");
 
@@ -151,31 +158,28 @@ public class UrlControllerFragment extends Fragment
 
     private void createRadioButtons()
     {
+        for (Urls.Url url : urls)
+        {
+            RadioButton rb = new RadioButton(getActivity(), null, );
 
+            rb.setText(url.getDescription());
+
+            urlsRadioGroup.addView(rb);
+        }
     }
 
     private void initializeVariables(View v)
     {
         errorTextView = (TextView) v.findViewById(R.id.errorTextView);
-        url1RadioButton = (RadioButton) v.findViewById(R.id.url1RadioButton);
-        url2RadioButton = (RadioButton) v.findViewById(R.id.url2RadioButton);
         openButton = (Button) v.findViewById(R.id.openButton);
         closeButton = (Button) v.findViewById(R.id.closeButton);
         shutdownButton = (Button) v.findViewById(R.id.shutdownButton);
+        urlsRadioGroup = (RadioGroup) v.findViewById(R.id.urlsRadioGroup);
     }
 
     private void openURL()
     {
         String url = null;
-
-        if (url1RadioButton.isChecked())
-        {
-            url = url1;
-        }
-        else if (url2RadioButton.isChecked())
-        {
-            url = url2;
-        }
 
         new ClientConnectionAsyncTask().execute(mainActivity.getClient().OPEN_URL, url);
     }
