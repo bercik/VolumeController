@@ -56,10 +56,6 @@ public class MainActivity extends ActionBarActivity
 
     public static final String HOST = "192.168.1.10";
     public static final int PORT = 5656;
-    public static final String URL1 =
-            "http://www.polskastacja.pl/webplayer/index.php?channel=43&version=20150602";
-    public static final String URL2 =
-            "https://play.spotify.com/user/bercikos/playlist/06yODuxCoQ6OQSPS81bmtX?play=true";
 
     private Client client;
 

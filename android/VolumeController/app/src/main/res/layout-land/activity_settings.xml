@@ -61,24 +61,6 @@
         android:layout_above="@+id/saveButton"
         android:layout_alignParentStart="true"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="URL:"
-        android:id="@+id/textView4"
-        android:layout_alignBottom="@+id/url1EditText"
-        android:layout_alignParentStart="true"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/url1EditText"
-        android:singleLine="true"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentEnd="true"
-        android:layout_alignStart="@+id/ipAddressEditText"/>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -87,20 +69,4 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="URL 2:"
-        android:id="@+id/textView6"
-        android:layout_alignBottom="@+id/url2EditText"
-        android:layout_alignParentStart="true"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/url2EditText"
-        android:layout_below="@+id/textView4"
-        android:layout_alignStart="@+id/url1EditText"
-        android:layout_alignEnd="@+id/cancelButton"/>
 </RelativeLayout>

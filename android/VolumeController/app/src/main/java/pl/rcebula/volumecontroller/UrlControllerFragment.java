@@ -54,8 +54,6 @@ public class UrlControllerFragment extends Fragment
     private RadioGroup urlsRadioGroup;
     private List<RadioButton> urlRadioButtons;
 
-    private String url1;
-    private String url2;
     private List<Urls.Url> urls;
 
     private OnFragmentInteractionListener mListener;
@@ -91,10 +89,6 @@ public class UrlControllerFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_url_controller, container, false);
 
         mainActivity = (MainActivity) getActivity();
-
-        SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
-        url1 = settings.getString("url1", MainActivity.URL1);
-        url2 = settings.getString("url2", MainActivity.URL2);
 
         urls = new Urls().getUrls();
         urlRadioButtons = new ArrayList<>();
