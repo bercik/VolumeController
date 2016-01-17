@@ -3,9 +3,12 @@ package pl.rcebula.volumecontroller;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -21,7 +24,6 @@ public class VolumeControllerService extends IntentService
     public static final String ACTION_INC_VOL = "ACTION_INC_VOL";
 
     // TODO: Rename parameters
-    public static final String PARAM_CLIENT = "PARAM_CLIENT";
     public static final String PARAM_INC = "PARAM_INC";
 
     public static final String PARAM_OUT = "PARAM_OUT";
@@ -38,11 +40,10 @@ public class VolumeControllerService extends IntentService
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionIncVol(Context context, Client client, Integer incVol)
+    public static void startActionIncVol(Context context, Integer incVol)
     {
         Intent intent = new Intent(context, VolumeControllerService.class);
         intent.setAction(ACTION_INC_VOL);
-        intent.putExtra(PARAM_CLIENT, client);
         intent.putExtra(PARAM_INC, incVol);
         context.startService(intent);
     }
@@ -55,9 +56,8 @@ public class VolumeControllerService extends IntentService
             final String action = intent.getAction();
             if (ACTION_INC_VOL.equals(action))
             {
-                final Client client = (Client) intent.getSerializableExtra(PARAM_CLIENT);
                 final Integer incVol = (Integer) intent.getSerializableExtra(PARAM_INC);
-                handleActionIncVol(client, incVol);
+                handleActionIncVol(incVol);
             }
         }
     }
@@ -66,41 +66,51 @@ public class VolumeControllerService extends IntentService
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionIncVol(Client client, Integer incVol)
+    private void handleActionIncVol(Integer incVol)
     {
-        // TODO: Handle action IncVol
-        try
-        {
-            int vol = client.getVolume();
+        SharedPreferences state = getSharedPreferences("State", 0);
+        boolean mute = state.getBoolean("mute", false);
 
-            if (vol != -1)
+        if (!mute)
+        {
+            try
             {
-                int newVol = vol + incVol;
-                if (newVol > 100)
+                SharedPreferences settings = getSharedPreferences("Preferences", 0);
+                String host = settings.getString("ipaddress", MainActivity.HOST);
+
+                Client client = new Client(host, MainActivity.PORT);
+
+                int vol = state.getInt("sound volume", 0);
+
+                if (vol != -1)
                 {
-                    newVol = 100;
+                    int newVol = vol + incVol;
+                    if (newVol > 100)
+                    {
+                        newVol = 100;
+                    }
+                    else if (newVol < 0)
+                    {
+                        newVol = 0;
+                    }
+
+                    client.setVolume(newVol);
+                    newVol = client.getVolume();
+
+                    MainActivity.updateNotification(getApplicationContext(), newVol);
+
+                    // processing done here….
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(VolumeControllerFragment.VolumeSetReceiver.ACTION_RESP);
+                    broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    broadcastIntent.putExtra(PARAM_OUT, newVol);
+                    sendBroadcast(broadcastIntent);
                 }
-                else if (newVol < 0)
-                {
-                    newVol = 0;
-                }
-
-                client.setVolume(newVol);
-                newVol = client.getVolume();
-
-                MainActivity.updateNotification(newVol);
-
-                // processing done here….
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(VolumeControllerFragment.VolumeSetReceiver.ACTION_RESP);
-                broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                broadcastIntent.putExtra(PARAM_OUT, newVol);
-                sendBroadcast(broadcastIntent);
             }
-        }
-        catch (Exception ex)
-        {
-            Log.e("volume controller serv", ex.getMessage());
+            catch (IOException ex)
+            {
+                Log.e("volume controller serv", ex.getMessage());
+            }
         }
     }
 }

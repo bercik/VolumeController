@@ -102,9 +102,6 @@ public class VolumeControllerFragment extends Fragment
 
         initializeVariables(view);
 
-        SharedPreferences settings = super.getActivity().getSharedPreferences("Preferences", 0);
-        String host = settings.getString("ipaddress", MainActivity.HOST);
-
         errorTextView.setText("");
 
         // add events
@@ -114,8 +111,6 @@ public class VolumeControllerFragment extends Fragment
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
                 svTextView.setText("Sound volume: " + Integer.toString(progress) + "%");
-
-                mainActivity.updateNotification(progress);
             }
 
             @Override
@@ -136,7 +131,7 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() + 5);
+                setProgress(svSeekBar.getProgress() + 5, true);
             }
         });
 
@@ -145,7 +140,7 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() + 1);
+                setProgress(svSeekBar.getProgress() + 1, true);
             }
         });
 
@@ -154,7 +149,7 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() - 1);
+                setProgress(svSeekBar.getProgress() - 1, true);
             }
         });
 
@@ -163,7 +158,7 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                svSeekBar.setProgress(svSeekBar.getProgress() - 5);
+                setProgress(svSeekBar.getProgress() - 5, true);
             }
         });
 
@@ -172,7 +167,10 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                getVolume();
+                if (!muteCheckBox.isChecked())
+                {
+                    getVolume();
+                }
             }
         });
 
@@ -181,7 +179,10 @@ public class VolumeControllerFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                setVolume(true);
+                if (!muteCheckBox.isChecked())
+                {
+                    setVolume(true);
+                }
             }
         });
 
@@ -200,10 +201,24 @@ public class VolumeControllerFragment extends Fragment
                 {
                     setVolume(true);
                 }
+
+                SharedPreferences settings = getActivity().getSharedPreferences("State", 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean("mute", mute);
+                editor.commit();
+
+                MainActivity.updateNotification(getActivity().getApplicationContext(),
+                        svSeekBar.getProgress());
             }
         });
 
-        getVolume();
+        SharedPreferences state = getActivity().getSharedPreferences("State", 0);
+        boolean mute = state.getBoolean("mute", false);
+
+        if (!mute)
+        {
+            getVolume();
+        }
 
         IntentFilter filter = new IntentFilter(VolumeSetReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -212,6 +227,16 @@ public class VolumeControllerFragment extends Fragment
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    private void setProgress(int newProgress, boolean updateNotification)
+    {
+        svSeekBar.setProgress(newProgress);
+
+        if (updateNotification)
+        {
+            mainActivity.updateNotification(getActivity().getApplicationContext(), newProgress);
+        }
     }
 
     private void getVolume()
@@ -228,6 +253,7 @@ public class VolumeControllerFragment extends Fragment
     {
         new ClientConnectionAsyncTask().execute(mainActivity.getClient().SET_VOLUME, Integer.toString(vol),
                 Boolean.toString(getVolAfter));
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -271,7 +297,7 @@ public class VolumeControllerFragment extends Fragment
         {
             int vol = intent.getIntExtra(VolumeControllerService.PARAM_OUT, -1);
 
-            svSeekBar.setProgress(vol);
+            setProgress(vol, false);
         }
     }
 
@@ -396,7 +422,7 @@ public class VolumeControllerFragment extends Fragment
             {
                 if (vol != -1)
                 {
-                    svSeekBar.setProgress(vol);
+                    setProgress(vol, true);
                 }
                 else
                 {
