@@ -1,21 +1,18 @@
 # VolumeController
-Allows to controll master sound volume on your PC (linux or windows) from your android phone
+Allows to controll master sound volume on your PC (linux) from your android phone
 
-# Add python script to startup (Ubuntu 14.04):
-1\. Go to /etc/init folder
+# Add python script to startup (tested on Linux Mint 17 Qiana):
 
-2\. create volume-controller.conf file with this content:
+## Fully working ugly solution
+1. Open application menu and search for "startup  applications", run it.
+2. Click add button.
+3. As command type: mate-terminal --working-directory=/path/to/directory/with/script --geometry=0x0+0+0 --title="Volume Controller" -e "bash -c 'echo pass | sudo -S python3 ./VolumeController.py;$SHELL'" where pass is your password.
 
-> start on runlevel [2345]
+## Solution without open and close url utility working
+Run VolumeController.py script at startup as superuser. You can do this in any way.
 
-> stop on runlevel [!2345]
-
-> chdir /path/to/folder/with/python/script (for example: /home/user/VolumeController/pc/linux)
-
-> exec ./run.sh
-
-3\. That's it. You can start and stop script manually by calling:
-
-> sudo service volume-controller start
-
-> sudo service volume-controller stop
+## Solution without shutdown utility working
+Seems same as first solution except it doesn't require password.
+1. Open application menu and search for "startup  applications", run it.
+2. Click add button.
+3. As command type: mate-terminal --working-directory=/path/to/directory/with/script --geometry=0x0+0+0 --title="Volume Controller" -e "bash -c 'python3 ./VolumeController.py;$SHELL'".
