@@ -1,10 +1,11 @@
 # VolumeController
-Allows to controll master sound volume on your PC (linux) from your android phone
+Allows to controll master sound volume on your PC (linux) from your android phone, open and close websites in google chrome on your PC, shutdown computer and view songs played on polskastacja web radio.
 
 # prerequisites
 - python in version 3
 - amixer command utility installed
 - superuser priviliges if you want shutdown utility
+- google chrome if you want open and close websites utility
 
 # How to run server on PC (adding python script to startup (tested on Linux Mint 17 Qiana)):
 
