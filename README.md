@@ -35,3 +35,8 @@ Run VolumeController.py script at startup as any user. You can do this in any wa
 
 # Installing android application
 For now you can just open whole android project in android studio, attach your phone via USB cable and run application.
+
+# Connectiong android to PC
+The last thing you need to do is set good ip address of your PC on android phone. To check your ip address open terminal and type in:
+`ifconfig`
+Then search for eth0 and inet address is your local ip address. Now in android application go to settings and change ip address to this.
