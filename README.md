@@ -8,6 +8,8 @@ Allows to controll master sound volume on your PC (linux) from your android phon
 
 # How to run server on PC (adding python script to startup (tested on Linux Mint 17 Qiana)):
 
+You need to run pc/linux/VolumeController.py script if you want this application to work. You can do this manually every time you need this or add it to startup so it will run automatically every time you start your computer. You can set it on startup in various ways which i listed below.
+
 ## Fully working ugly solution
 1. Open application menu and search for "startup  applications", run it.
 2. Click add button.
