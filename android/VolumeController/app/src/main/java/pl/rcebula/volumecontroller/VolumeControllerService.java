@@ -22,9 +22,11 @@ public class VolumeControllerService extends IntentService
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     public static final String ACTION_INC_VOL = "ACTION_INC_VOL";
+    public static final String ACTION_DEC_VOL = "ACTION_DEC_VOL";
 
     // TODO: Rename parameters
     public static final String PARAM_INC = "PARAM_INC";
+    public static final String PARAM_DEC = "PARAM_DEC";
 
     public static final String PARAM_OUT = "PARAM_OUT";
 
@@ -59,7 +61,17 @@ public class VolumeControllerService extends IntentService
                 final Integer incVol = (Integer) intent.getSerializableExtra(PARAM_INC);
                 handleActionIncVol(incVol);
             }
+            else if (ACTION_DEC_VOL.equals(action))
+            {
+                final Integer decVol = (Integer) intent.getSerializableExtra(PARAM_DEC);
+                handleActionDecVol(decVol);
+            }
         }
+    }
+
+    private void handleActionDecVol(Integer decVol)
+    {
+        handleActionIncVol(-decVol);
     }
 
     /**

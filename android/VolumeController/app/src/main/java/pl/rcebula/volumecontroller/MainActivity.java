@@ -263,10 +263,10 @@ public class MainActivity extends ActionBarActivity
                 (int) System.currentTimeMillis(), incVolIntent, 0);
 
         Intent decVolIntent = new Intent(context, VolumeControllerService.class);
-        incVolIntent.putExtra(VolumeControllerService.PARAM_INC, -5);
-        incVolIntent.setAction(VolumeControllerService.ACTION_INC_VOL);
+        decVolIntent.putExtra(VolumeControllerService.PARAM_DEC, 5);
+        decVolIntent.setAction(VolumeControllerService.ACTION_DEC_VOL);
         PendingIntent decVolPIntent = PendingIntent.getService(context,
-                (int) System.currentTimeMillis(), incVolIntent, 0);
+                (int) System.currentTimeMillis(), decVolIntent, 0);
 
         SharedPreferences state = context.getSharedPreferences("State", 0);
         boolean mute = state.getBoolean("mute", false);
