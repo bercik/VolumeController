@@ -1,7 +1,12 @@
 # VolumeController
 Allows to controll master sound volume on your PC (linux) from your android phone
 
-# Add python script to startup (tested on Linux Mint 17 Qiana):
+# prerequisites
+- python in version 3
+- amixer command utility installed
+- superuser priviliges if you want shutdown utility
+
+# How to run server on PC (adding python script to startup (tested on Linux Mint 17 Qiana)):
 
 ## Fully working ugly solution
 1. Open application menu and search for "startup  applications", run it.
