@@ -31,3 +31,6 @@ This will open terminal window on startup so you will see small black box on you
 
 ## Solution with only volume controll utility working
 Run VolumeController.py script at startup as any user. You can do this in any way.
+
+# Installing android application
+For now you can just open whole android project in android studio, attach your phone via USB cable and run application.
