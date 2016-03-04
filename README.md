@@ -40,7 +40,7 @@ chdir /path/to/folder/VolumeController/pc/linux
 # Specify the process/command to start, e.g.
 exec ./run.sh
 ```
-4. Now you can start and stop job manually and it will start automatically at system startup.
+4\. Now you can start and stop job manually and it will start automatically at system startup.
 
 ## Solution without shutdown utility working
 Seems same as first solution except it doesn't require password.
