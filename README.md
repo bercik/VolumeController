@@ -11,7 +11,7 @@ Allows to controll master sound volume on your PC (linux) from your android phon
 
 You need to run pc/linux/VolumeController.py script if you want this application to work. You can do this manually every time you need this or add it to startup so it will run automatically every time you start your computer. You can set it on startup in various ways which i listed below.
 
-## Fully working ugly solution
+## Fully working ugly solution on linux mint
 1. Open application menu and search for "startup  applications", run it.
 2. Click add button.
 3. As command type: `mate-terminal --working-directory=/path/to/directory/with/script --geometry=0x0+0+0 --title="Volume Controller" -e "bash -c 'echo pass | sudo -S python3 ./VolumeController.py;$SHELL'"` where pass is your password.
@@ -19,7 +19,28 @@ You need to run pc/linux/VolumeController.py script if you want this application
 This will open terminal window on startup so you will see small black box on your screen with Volume Controller title. Don't close it!
 
 ## Solution without open and close url utility working
-Run VolumeController.py script at startup as superuser. You can do this in any way.
+Run VolumeController.py script at startup as superuser. You can do this in any way. For example you can create upstart job like this:
+
+1. Go to /etc/init folder
+2. As a superuser create and edit file volume-controller.conf
+3. Paste into it:
+```
+# When to start the service
+start on runlevel [2345]
+
+# When to stop the service
+stop on runlevel [016]
+
+# Automatically restart process if crashed
+respawn
+
+# Specify working directory
+chdir /path/to/folder/VolumeController/pc/linux
+
+# Specify the process/command to start, e.g.
+exec ./run.sh
+```
+4. Now you can start and stop job manually and it will start automatically at system startup.
 
 ## Solution without shutdown utility working
 Seems same as first solution except it doesn't require password.
