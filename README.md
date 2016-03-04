@@ -22,7 +22,9 @@ This will open terminal window on startup so you will see small black box on you
 Run VolumeController.py script at startup as superuser. You can do this in any way. For example you can create upstart job like this:
 
 1\. Go to /etc/init folder
+
 2\. As a superuser create and edit file volume-controller.conf
+
 3\. Paste into it:
 ```
 # When to start the service
