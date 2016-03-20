@@ -6,6 +6,7 @@ import sys
 import logging
 import os
 import math
+import re
 
 CHROME_USER_DIR = "/home/chrome-user"
 
@@ -22,14 +23,21 @@ class VolumeController:
         err = p.communicate()
 
     def getVolume(self):
-        p = subprocess.Popen(['./get_volume.sh'], 
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
+        try:
+            p = subprocess.Popen(['amixer', 'sget', 'Master'],
+                                  stdout=subprocess.PIPE, 
+                                  stderr=subprocess.PIPE)
 
-        out, err = p.communicate()
+            out, err = p.communicate()
 
-        vol = int(out[:-2])
-        vol = int(self.amixerToComputer(vol) + 0.5)
+            m = re.search("\d+%", str(out))
+            vol = m.group(0)
+
+            vol = int(vol[:-1])
+            vol = int(self.amixerToComputer(vol) + 0.5)
+
+        except Exception as ex:
+            logging.error(ex)
 
         return vol
 
@@ -132,7 +140,8 @@ class Server:
 
 if __name__ == '__main__':
 
-    LOG_FILENAME = '/home/robert/volume-controller.log'
+    LOG_FILENAME = os.path.dirname(os.path.realpath(__file__)) \
+            + "/volume-controller.log"
     FORMAT = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG, format=FORMAT)
 
