@@ -7,9 +7,13 @@ Allows to controll master sound volume on your PC (linux) from your android phon
 - amixer command utility installed
 - superuser priviliges if you want shutdown utility
 - google chrome if you want open and close websites utility. You will also need to create empty directory /home/chrome-user (this can be owned by root).
+
+
 ## pc client
 - python3
 - tkinter python3 module
+
+
 ## android client
 - minimum version ... of android
 
