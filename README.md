@@ -1,15 +1,21 @@
 # VolumeController
-Allows to controll master sound volume on your PC (linux) from your android phone, open and close websites in google chrome on your PC, shutdown computer and view songs played on polskastacja web radio.
+Allows to controll master sound volume on your PC (linux) from your android phone or another PC (linux and windows), open and close websites in google chrome on your PC, shutdown computer and view songs played on polskastacja web radio.
 
 # prerequisites
+## pc server
 - python in version 3
 - amixer command utility installed
 - superuser priviliges if you want shutdown utility
 - google chrome if you want open and close websites utility. You will also need to create empty directory /home/chrome-user (this can be owned by root).
+## pc client
+- python3
+- tkinter python3 module
+## android client
+- minimum version ... of android
 
 # How to run server on PC (adding python script to startup (tested on Linux Mint 17 Qiana and Ubuntu 14.04 (without open and close url utility))):
 
-You need to run pc/linux/VolumeController.py script if you want this application to work. You can do this manually every time you need this or add it to startup so it will run automatically every time you start your computer. You can set it on startup in various ways which i listed below.
+You need to run server/pc/linux/VolumeController.py script if you want this application to work. You can do this manually every time you need this or add it to startup so it will run automatically every time you start your computer. You can set it on startup in various ways which i listed below.
 
 ## Fully working ugly solution on linux mint
 1. Open application menu and search for "startup  applications", run it.
@@ -37,7 +43,7 @@ stop on runlevel [016]
 respawn
 
 # Specify working directory
-chdir /path/to/folder/VolumeController/pc/linux
+chdir /path/to/folder/VolumeController/server/pc/linux
 
 # Specify the process/command to start, e.g.
 exec ./run.sh
@@ -59,9 +65,9 @@ Run VolumeController.py script at startup as any user. You can do this in any wa
 # Installing android application
 For now you can just open whole android project in android studio, attach your phone via USB cable and run application.
 
-# Connectiong android to PC
-The last thing you need to do is set good ip address of your PC on android phone. To check your ip address open terminal and type in:
+# Connecting client to server
+The last thing you need to do is set good ip address of your server on client. To check your ip address on linux server open terminal and type in:
 `ifconfig`
-Then search for eth0 and inet address is your local ip address. Now in android application go to settings and change ip address to this.
+Then search for eth0 and inet address is your local ip address. Now in client (android and PC) go to settings and change ip address to this.
 
 If you have got some issues with application feel free to write me an email.
